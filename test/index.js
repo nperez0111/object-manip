@@ -18,7 +18,9 @@ console.assert( equal( man.transform( {
     }
 
 } ), { a: 2 } ) );
+
 man.reverse = false;
+
 
 console.assert( equal( man.transform( {
     a: {
@@ -30,3 +32,19 @@ console.assert( equal( man.transform( {
 }, {
     a: { b: 1 }
 } ), { a: { b: 2 } } ) );
+
+console.assert( equal( man.transform( {
+    a: function ( b ) {
+        return b + 1;
+    }
+
+}, {
+    a: [ 1 ]
+} ), { a: [ 2 ] } ) );
+
+console.assert( equal( man.transform( {
+    a: 'b'
+
+}, {
+    a: 1
+} ), { b: 1 } ) );

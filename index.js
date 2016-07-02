@@ -3,15 +3,28 @@ var isString = require( 'validate.io-string' ),
     isFunc = require( 'isfunction' ),
     isObj = require( 'isobject' ),
     isArr = require( 'isarray' ),
-    hasOwnProp = require( 'has-own-prop' );
+    hasOwnProp = require( 'has-own-prop' ),
+    flag = false;
 
 function objArr( obj, actual, callback ) {
-    var values = Object.keys( obj ).map( function ( key ) {
-            return callback( obj[ key ], key, actual );
+    var keys = Object.keys( obj ),
+        edits = [],
+        values = keys.map( function ( key, i ) {
+            var val = callback( obj[ key ], key, actual );
+            if ( flag !== false ) {
+                edits.push( [ flag, i ] );
+                flag = false;
+            }
+            return val;
         } ),
         ret = {};
+    if ( edits.length ) {
+        edits.forEach( function ( cur ) {
+            keys[ cur[ 1 ] ] = cur[ 0 ];
+        } );
+    }
 
-    Object.keys( obj ).forEach( function ( cur, i ) {
+    keys.forEach( function ( cur, i ) {
         ret[ cur ] = values[ i ];
     } );
 
@@ -31,11 +44,14 @@ module.exports = {
     callback: function ( func, prop, obj ) {
 
         if ( isString( func ) ) {
-
+            flag = func;
+            return obj[ prop ];
         } else if ( isFunc( func ) ) {
 
             if ( hasOwnProp( obj, prop ) ) {
-
+                if ( isArr( obj[ prop ] ) ) {
+                    return obj[ prop ].map( func );
+                }
                 return func( obj[ prop ] );
 
             } else {
@@ -47,8 +63,6 @@ module.exports = {
         } else if ( isObj( func ) ) {
 
             return module.exports.transform( func, obj[ prop ], module.exports.callback );
-
-        } else if ( isArr( func ) ) {
 
         }
 
