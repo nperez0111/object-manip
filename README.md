@@ -64,3 +64,30 @@ var manip = require('object-manip'),
 	//{ a: { b: { c: { d: 2 } } } }
 
 ````
+
+##Relocator Transform and Transform function
+
+````JS
+	original = {
+		a: 2
+	}
+	transformer = {
+		a: ['b.c',function (x){return x + 1;}
+	}
+	manip(original,transformer)
+	//{ a: { b: { c: 3 } } }
+````
+
+###With Arrays
+
+````JS
+	original = {
+		a: [ 2, 3, 4 ]
+	}
+	transformer = {
+		a: ['b.c',function ( current, index ){ return current + index; }
+	}
+	manip(original,transformer)
+	//{ a: { b: { c: [ 2, 4, 5 ] } } }
+
+````
