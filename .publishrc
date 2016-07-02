@@ -1,0 +1,13 @@
+{
+  "validations": {
+    "vulnerableDependencies": false,
+    "uncommittedChanges": true,
+    "untrackedFiles": false,
+    "sensitiveData": false,
+    "branch": "master",
+    "gitTag": false
+  },
+  "confirm": false,
+  "publishTag": "latest",
+  "prePublishScript": "npm run test"
+}

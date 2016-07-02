@@ -4,7 +4,9 @@
   "description": "Uses a transform object to create a new object",
   "main": "index.js",
   "scripts": {
-    "test": "node test/index.js"
+    "test": "node test/index.js",
+    "publish-please": "publish-please",
+    "prepublish": "publish-please guard"
   },
   "repository": {
     "type": "git",
@@ -34,5 +36,8 @@
     "isfunction": "0.0.6",
     "isobject": "^2.1.0",
     "validate.io-string": "^1.0.2"
+  },
+  "devDependencies": {
+    "publish-please": "^2.1.4"
   }
 }
