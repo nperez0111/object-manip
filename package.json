@@ -1,0 +1,28 @@
+{
+  "name": "object-manip",
+  "version": "1.0.0",
+  "description": "Uses a transform object to create a new object",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nperez0111/object-manip.git"
+  },
+  "keywords": [
+    "object",
+    "pojo",
+    "object",
+    "literal",
+    "transform",
+    "manipulate",
+    "functional"
+  ],
+  "author": "Nick The Sick",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nperez0111/object-manip/issues"
+  },
+  "homepage": "https://github.com/nperez0111/object-manip#readme"
+}
