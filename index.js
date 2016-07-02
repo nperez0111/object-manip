@@ -75,8 +75,11 @@ module.exports = {
     callback: function ( func, prop, obj ) {
 
         if ( isString( func ) ) {
+
             flag = func;
+
             return obj[ prop ];
+
         } else if ( isFunc( func ) ) {
 
             if ( hasOwnProp( obj, prop ) ) {
@@ -101,6 +104,7 @@ module.exports = {
             module.exports.settings.reverse = false;
             var r = module.exports.transform( func, obj[ prop ], module.exports.callback );
             module.exports.settings.reverse = temp;
+
             return r;
 
         }
