@@ -9,7 +9,9 @@ console.assert( equal( man.transform( {
 }, {
     a: 1
 } ), { a: 2 } ) );
-man.reverse = true;
+
+man.settings.reverse = true;
+
 console.assert( equal( man.transform( {
     a: 1
 }, {
@@ -19,7 +21,7 @@ console.assert( equal( man.transform( {
 
 } ), { a: 2 } ) );
 
-man.reverse = false;
+man.settings.reverse = false;
 
 
 console.assert( equal( man.transform( {
@@ -44,7 +46,12 @@ console.assert( equal( man.transform( {
 
 console.assert( equal( man.transform( {
     a: 'b'
-
 }, {
     a: 1
 } ), { b: 1 } ) );
+console.assert( equal( man.transform( {
+    a: 'b.a.c'
+
+}, {
+    a: 1
+} ), { b: { a: { c: 1 } } } ) );

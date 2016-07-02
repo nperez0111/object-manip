@@ -20,7 +20,9 @@ function objArr( obj, actual, callback ) {
         ret = {};
     if ( edits.length ) {
         edits.forEach( function ( cur ) {
-            keys[ cur[ 1 ] ] = cur[ 0 ];
+            var ret = parseStr( cur[ 0 ], cur[ 1 ], keys, values );
+            keys = ret[ 0 ];
+            values = ret[ 1 ];
         } );
     }
 
@@ -30,14 +32,43 @@ function objArr( obj, actual, callback ) {
 
     return ret;
 }
+
+function parseStr( str, cur, keys, values ) {
+    var props = str.split( '.' );
+    if ( props.length == 1 ) {
+        keys[ cur ] = str;
+        return [ keys, values ];
+    }
+    keys[ cur ] = props.shift();
+    values[ cur ] = makeObj( values[ cur ], props );
+    /*returns in format [keys,values]*/
+    return [ keys, values ];
+}
+
+function makeObj( val, props ) {
+    var obj = {};
+    props.reverse();
+    obj[ props.shift() ] = val;
+    props.forEach( function ( cur ) {
+        var ret = {};
+        ret[ cur ] = obj;
+        obj = ret;
+    } );
+    return obj;
+}
+
 module.exports = {
     transform: curry( function ( transformer, obj ) {
-        if ( module.exports.reverse ) {
+
+        var settings = module.exports.settings;
+
+        if ( settings.reverse ) {
             var temp = obj;
             obj = transformer;
             transformer = temp;
             temp = null;
         }
+
         return objArr( transformer, obj, module.exports.callback );
 
     } ),
@@ -49,9 +80,13 @@ module.exports = {
         } else if ( isFunc( func ) ) {
 
             if ( hasOwnProp( obj, prop ) ) {
+
                 if ( isArr( obj[ prop ] ) ) {
+
                     return obj[ prop ].map( func );
+
                 }
+
                 return func( obj[ prop ] );
 
             } else {
@@ -62,10 +97,16 @@ module.exports = {
 
         } else if ( isObj( func ) ) {
 
-            return module.exports.transform( func, obj[ prop ], module.exports.callback );
+            var temp = module.exports.settings.reverse;
+            module.exports.settings.reverse = false;
+            var r = module.exports.transform( func, obj[ prop ], module.exports.callback );
+            module.exports.settings.reverse = temp;
+            return r;
 
         }
 
     },
-    reverse: false
+    settings: {
+        reverse: false
+    }
 }
