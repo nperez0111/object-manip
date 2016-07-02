@@ -57,10 +57,48 @@ console.assert( equal( man.transform( {
 } ), { b: { a: { c: 1 } } } ) );
 
 console.assert( equal( man.transform( {
-    a: { b: { c: function ( a ) {
-                return a + 1 } }, d: function ( s ) {
-            return s + 1; } }
+    a: {
+        b: {
+            c: function ( a ) {
+                return a + 1
+            }
+        },
+        d: function ( s ) {
+            return s + 1;
+        }
+    }
 
 }, {
     a: { b: { c: [ 1, 2, 3 ] }, d: 3 }
 } ), { a: { b: { c: [ 2, 3, 4 ] }, d: 4 } } ) );
+
+console.assert( equal( man.transform( {
+    a: [ 'b', function ( a ) {
+        return a + 1
+    } ]
+
+}, {
+    a: 1
+} ), { b: 2 } ) );
+console.assert( equal( man.transform( {
+    a: [ 'b', function ( a ) {
+        return a + 1
+    } ]
+
+}, {
+    a: [ 1, 2, 3 ]
+} ), { b: [ 2, 3, 4 ] } ) );
+
+console.assert( equal( man.transform( {
+    a: [ 'b.c', function ( a ) {
+        return a + 1
+    } ]
+
+}, {
+    a: [ 1, 2, 3 ]
+} ), { b: { c: [ 2, 3, 4 ] } } ) );
+
+function log( a ) {
+    console.log( a );
+    return a;
+}

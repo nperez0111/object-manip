@@ -21,9 +21,15 @@ function objArr( obj, actual, callback ) {
         ret = {};
     if ( edits.length ) {
         edits.forEach( function ( cur ) {
-            var ret = parseStr( cur[ 0 ], cur[ 1 ], keys, values );
-            keys = ret[ 0 ];
-            values = ret[ 1 ];
+            var str = cur[ 0 ],
+                func = false;
+            if ( isArr( cur[ 0 ] ) ) {
+                str = cur[ 0 ][ 0 ];
+                func = cur[ 0 ][ 1 ];
+            }
+            var postParse = parseStr( str, cur[ 1 ], keys, values, func );
+            keys = postParse[ 0 ];
+            values = postParse[ 1 ];
         } );
     }
 
@@ -34,14 +40,16 @@ function objArr( obj, actual, callback ) {
     return ret;
 }
 
-function parseStr( str, cur, keys, values ) {
-    var props = str.split( '.' );
+function parseStr( str, cur, keys, values, func ) {
+    var props = str.split( '.' ),
+        value = func ? isArr( values[ cur ] ) ? values[ cur ].map( func ) : func( values[ cur ] ) : values[ cur ];
     if ( props.length == 1 ) {
         keys[ cur ] = str;
+        values[ cur ] = value;
         return [ keys, values ];
     }
     keys[ cur ] = props.shift();
-    values[ cur ] = makeObj( values[ cur ], props );
+    values[ cur ] = makeObj( value, props );
     /*returns in format [keys,values]*/
     return [ keys, values ];
 }
@@ -75,7 +83,7 @@ module.exports = {
     } ),
     callback: function ( func, prop, obj ) {
 
-        if ( isString( func ) ) {
+        if ( isString( func ) || isArr( func ) ) {
 
             flag = func;
 
@@ -118,4 +126,9 @@ module.exports = {
     settings: {
         reverse: false
     }
+}
+
+function log( a ) {
+    console.log( a );
+    return a;
 }
