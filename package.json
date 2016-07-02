@@ -29,6 +29,7 @@
     "curry": "^1.2.0",
     "deep-equal": "^1.0.1",
     "has-own-prop": "^1.0.0",
+    "is-circular": "^1.0.1",
     "isarray": "^1.0.0",
     "isfunction": "0.0.6",
     "isobject": "^2.1.0",

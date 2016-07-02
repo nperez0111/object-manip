@@ -4,7 +4,8 @@ var isString = require( 'validate.io-string' ),
     isObj = require( 'isobject' ),
     isArr = require( 'isarray' ),
     hasOwnProp = require( 'has-own-prop' ),
-    flag = false;
+    flag = false,
+    isCircular = require( 'is-circular' );
 
 function objArr( obj, actual, callback ) {
     var keys = Object.keys( obj ),
@@ -99,9 +100,13 @@ module.exports = {
             }
 
         } else if ( isObj( func ) ) {
-
+            if ( isCircular( func ) ) {
+                console.warn( "Circular Object detected, now exiting..." );
+                return null;
+            }
             var temp = module.exports.settings.reverse;
             module.exports.settings.reverse = false;
+            //have to make sure that the setting isnt manipulated before insertion
             var r = module.exports.transform( func, obj[ prop ], module.exports.callback );
             module.exports.settings.reverse = temp;
 
