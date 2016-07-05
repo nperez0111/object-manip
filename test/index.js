@@ -220,6 +220,55 @@ console.assert( man.hasDeepTransform( {
     a: '././a'
 } ) );
 
+console.assert( equal( man.findDeepTransforms( {} ), [] ) );
+console.assert( equal( ( man.findDeepTransforms( {
+    a: '././a'
+} ) ), [ {
+    a: '././a'
+} ] ) );
+console.assert( equal( man.findDeepTransforms( {
+    a: '././a',
+    b: {
+        c: '././b'
+    }
+} ), [ {
+    a: '././a'
+}, {
+    b: {
+        c: '././b'
+    }
+} ] ) );
+console.assert( equal( man.findDeepTransforms( {
+    a: '././a',
+    b: {
+        c: '././b',
+        e: 2
+    },
+    l: 3
+} ), [ {
+    a: '././a'
+}, {
+    b: {
+        c: '././b'
+    }
+} ] ) );
+
+console.assert( equal( man.findDeepTransforms( {
+    a: '././a',
+    b: {
+        c: '././b',
+        e: '././d'
+    },
+    l: 3
+} ), [ {
+    a: '././a'
+}, {
+    b: {
+        c: '././b',
+        e: '././d'
+    }
+} ] ) );
+
 //work on multilevel backward movements, possibly
 //use a function prior to transform to automagically generate multiple transfroms 
 

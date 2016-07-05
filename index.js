@@ -103,6 +103,19 @@ function parseStr( str, cur, keys, values, func ) {
 
 }
 
+function createObj( keys, values ) {
+    var ret = {};
+    if ( isArr( keys ) && isArr( values ) ) {
+        keys.forEach( ( cur, i ) => {
+            ret[ cur ] = values[ i ];
+        } );
+
+    } else {
+        ret[ keys ] = values;
+    }
+    return ret;
+}
+
 function makeObj( val, props ) {
     var obj = {};
     props.reverse();
@@ -126,29 +139,71 @@ function levelOfTransform( str, num ) {
 
 
 module.exports = {
-    hasDeepTransform: function ( transformer ) {
+    hasDeepTransform: function ( transformer, isDeep ) {
+
+        isDeep = isDeep == undefined ? true : isDeep;
+
         var keys = Object.keys( transformer ),
             values = keys.map( function ( cur ) {
                 return transformer[ cur ];
             } );
+
         if ( isCircular( transformer ) ) {
+            //just a check as this is a recursive method
             console.warn( 'Circular reference found and is unsupported. exiting...' );
             return null;
         }
-        return values.map( function ( cur ) {
+
+        return values.some( function ( cur ) {
+
             if ( isString( cur ) || isArr( cur ) ) {
+
                 var s = isArr( cur ) ? cur[ 0 ] : cur;
-                //return when true
                 return levelOfTransform( cur ) > 1;
-            } else if ( isObject( cur ) ) {
+
+            } else if ( isDeep && isObj( cur ) ) {
+
                 return module.exports.hasDeepTransform( cur );
+
             } else {
                 //i guess no other case is it relevant
                 return false;
             }
-        } ).some( function ( a ) {
-            return a;
+
         } );
+    },
+    findDeepTransforms: function ( transformer ) {
+        var keys = Object.keys( transformer ),
+            values = keys.map( function ( cur ) {
+                return transformer[ cur ]
+            } ),
+            arr = [];
+        if ( keys.length == 0 ) {
+            return arr;
+        }
+        var deepTransformKeys = ( keys.map( function ( cur, i ) {
+            return [ module.exports.hasDeepTransform( createObj( cur, values[ i ] ), true ), i ];
+        } ).filter( function ( a ) {
+            return a[ 0 ];
+        } ) );
+        return ( deepTransformKeys.map( function ( cur ) {
+            var key = keys[ cur[ 1 ] ],
+                val = values[ cur[ 1 ] ];
+            if ( isObj( val ) ) {
+                val = module.exports.findDeepTransforms( val );
+                var reducer = ( function ( val ) {
+                    return val.reduce( function ( acc, obj ) {
+                        if ( isArr( obj ) ) {
+                            return Object.assign( {}, acc, reducer( obj ) );
+                        }
+                        return Object.assign( {}, acc, obj );
+                    }, {} );
+                } );
+                val = reducer( val );
+            }
+            return createObj( key, val );
+        } ) );
+
     },
     deepTransform: function ( transformer, obj ) {},
     transform: curry( function ( transformer, obj ) {
