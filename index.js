@@ -115,30 +115,42 @@ function makeObj( val, props ) {
     return obj;
 }
 
+function levelOfTransform( str, num ) {
+    var arr = Array.from( str );
+    if ( arr.shift() == '.' && arr.shift() == '/' ) {
+        return levelOfTransform( arr.join( '' ), ( num || 0 ) + 1 );
+    }
+    return num || 0;
+}
+
+
+
 module.exports = {
     hasDeepTransform: function ( transformer ) {
         var keys = Object.keys( transformer ),
             values = keys.map( function ( cur ) {
-                return transformer[ cur ]; } );
-        values.map( function ( cur ) {
+                return transformer[ cur ];
+            } );
+        if ( isCircular( transformer ) ) {
+            console.warn( 'Circular reference found and is unsupported. exiting...' );
+            return null;
+        }
+        return values.map( function ( cur ) {
             if ( isString( cur ) || isArr( cur ) ) {
                 var s = isArr( cur ) ? cur[ 0 ] : cur;
                 //return when true
+                return levelOfTransform( cur ) > 1;
             } else if ( isObject( cur ) ) {
                 return module.exports.hasDeepTransform( cur );
             } else {
                 //i guess no other case is it relevant
                 return false;
             }
-        } )
+        } ).some( function ( a ) {
+            return a;
+        } );
     },
-    deepTransform: curry( function ( transformer, obj ) {
-        if ( module.exports.hasDeepTransform( transformer ) ) {
-            return module.exports.deepTransformer( transformer, obj );
-        } else {
-            return module.exports.transform( transformer, obj );
-        }
-    } ),
+    deepTransform: function ( transformer, obj ) {},
     transform: curry( function ( transformer, obj ) {
 
         var settings = module.exports.settings;
@@ -214,6 +226,13 @@ module.exports = {
         reverse: false
     }
 }
+module.exports.transform.deep = curry( function ( transformer, obj ) {
+    if ( module.exports.hasDeepTransform( transformer ) ) {
+        return module.exports.deepTransform( transformer, obj );
+    } else {
+        return module.exports.transform( transformer, obj );
+    }
+} );
 
 function log( a ) {
     console.log( a );

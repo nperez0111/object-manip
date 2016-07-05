@@ -8,7 +8,9 @@ console.assert( equal( man.transform( {
 
 }, {
     a: 1
-} ), { a: 2 } ) );
+} ), {
+    a: 2
+} ) );
 
 man.settings.reverse = true;
 
@@ -19,7 +21,9 @@ console.assert( equal( man.transform( {
         return b + 1;
     }
 
-} ), { a: 2 } ) );
+} ), {
+    a: 2
+} ) );
 
 man.settings.reverse = false;
 
@@ -32,8 +36,14 @@ console.assert( equal( man.transform( {
     }
 
 }, {
-    a: { b: 1 }
-} ), { a: { b: 2 } } ) );
+    a: {
+        b: 1
+    }
+} ), {
+    a: {
+        b: 2
+    }
+} ) );
 
 console.assert( equal( man.transform( {
     a: function ( b ) {
@@ -42,19 +52,29 @@ console.assert( equal( man.transform( {
 
 }, {
     a: [ 1 ]
-} ), { a: [ 2 ] } ) );
+} ), {
+    a: [ 2 ]
+} ) );
 
 console.assert( equal( man.transform( {
     a: 'b'
 }, {
     a: 1
-} ), { b: 1 } ) );
+} ), {
+    b: 1
+} ) );
 console.assert( equal( man.transform( {
     a: 'b.a.c'
 
 }, {
     a: 1
-} ), { b: { a: { c: 1 } } } ) );
+} ), {
+    b: {
+        a: {
+            c: 1
+        }
+    }
+} ) );
 
 console.assert( equal( man.transform( {
     a: {
@@ -69,8 +89,20 @@ console.assert( equal( man.transform( {
     }
 
 }, {
-    a: { b: { c: [ 1, 2, 3 ] }, d: 3 }
-} ), { a: { b: { c: [ 2, 3, 4 ] }, d: 4 } } ) );
+    a: {
+        b: {
+            c: [ 1, 2, 3 ]
+        },
+        d: 3
+    }
+} ), {
+    a: {
+        b: {
+            c: [ 2, 3, 4 ]
+        },
+        d: 4
+    }
+} ) );
 
 console.assert( equal( man.transform( {
     a: [ 'b', function ( a ) {
@@ -79,7 +111,9 @@ console.assert( equal( man.transform( {
 
 }, {
     a: 1
-} ), { b: 2 } ) );
+} ), {
+    b: 2
+} ) );
 console.assert( equal( man.transform( {
     a: [ 'b', function ( a ) {
         return a + 1
@@ -87,7 +121,9 @@ console.assert( equal( man.transform( {
 
 }, {
     a: [ 1, 2, 3 ]
-} ), { b: [ 2, 3, 4 ] } ) );
+} ), {
+    b: [ 2, 3, 4 ]
+} ) );
 
 console.assert( equal( man.transform( {
     a: [ 'b.c', function ( a ) {
@@ -96,13 +132,24 @@ console.assert( equal( man.transform( {
 
 }, {
     a: [ 1, 2, 3 ]
-} ), { b: { c: [ 2, 3, 4 ] } } ) );
+} ), {
+    b: {
+        c: [ 2, 3, 4 ]
+    }
+} ) );
 
 console.assert( equal( man.transform( {
-    a: { b: './c' }
+    a: {
+        b: './c'
+    }
 }, {
-    a: { b: 1 }
-} ), { a: {}, c: 1 } ) );
+    a: {
+        b: 1
+    }
+} ), {
+    a: {},
+    c: 1
+} ) );
 
 console.assert( equal( man.transform( {
     a: {
@@ -111,8 +158,13 @@ console.assert( equal( man.transform( {
         } ]
     }
 }, {
-    a: { b: 1 }
-} ), { a: {}, c: 2 } ) );
+    a: {
+        b: 1
+    }
+} ), {
+    a: {},
+    c: 2
+} ) );
 
 console.assert( equal( ( man.transform( {
     a: {
@@ -122,14 +174,24 @@ console.assert( equal( ( man.transform( {
         d: 212
     }
 }, {
-    a: { b: 1, d: 212 }
-} ) ), { a: { d: 212 }, c: 2 } ) );
+    a: {
+        b: 1,
+        d: 212
+    }
+} ) ), {
+    a: {
+        d: 212
+    },
+    c: 2
+} ) );
 
 console.assert( equal( ( man.transform( {
     a: './b'
 }, {
     a: 1
-} ) ), { b: 1 } ) );
+} ) ), {
+    b: 1
+} ) );
 
 console.assert( equal( ( man.transform( {
     a: {
@@ -144,8 +206,19 @@ console.assert( equal( ( man.transform( {
         }
     }
 }, {
-    a: { d: { b: 1 } }
-} ) ) ), { a: {}, c: 2 } ) );
+    a: {
+        d: {
+            b: 1
+        }
+    }
+} ) ) ), {
+    a: {},
+    c: 2
+} ) );
+
+console.assert( man.hasDeepTransform( {
+    a: '././a'
+} ) );
 
 //work on multilevel backward movements, possibly
 //use a function prior to transform to automagically generate multiple transfroms 
