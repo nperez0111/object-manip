@@ -187,21 +187,34 @@ module.exports = {
             return a[ 0 ];
         } ) );
         return ( deepTransformKeys.map( function ( cur ) {
+
             var key = keys[ cur[ 1 ] ],
                 val = values[ cur[ 1 ] ];
+
             if ( isObj( val ) ) {
+
                 val = module.exports.findDeepTransforms( val );
+
                 var reducer = ( function ( val ) {
+
                     return val.reduce( function ( acc, obj ) {
+
                         if ( isArr( obj ) ) {
+
                             return Object.assign( {}, acc, reducer( obj ) );
+
                         }
+
                         return Object.assign( {}, acc, obj );
+
                     }, {} );
                 } );
+
                 val = reducer( val );
             }
+
             return createObj( key, val );
+
         } ) );
 
     },
