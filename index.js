@@ -116,6 +116,29 @@ function makeObj( val, props ) {
 }
 
 module.exports = {
+    hasDeepTransform: function ( transformer ) {
+        var keys = Object.keys( transformer ),
+            values = keys.map( function ( cur ) {
+                return transformer[ cur ]; } );
+        values.map( function ( cur ) {
+            if ( isString( cur ) || isArr( cur ) ) {
+                var s = isArr( cur ) ? cur[ 0 ] : cur;
+                //return when true
+            } else if ( isObject( cur ) ) {
+                return module.exports.hasDeepTransform( cur );
+            } else {
+                //i guess no other case is it relevant
+                return false;
+            }
+        } )
+    },
+    deepTransform: curry( function ( transformer, obj ) {
+        if ( module.exports.hasDeepTransform( transformer ) ) {
+            return module.exports.deepTransformer( transformer, obj );
+        } else {
+            return module.exports.transform( transformer, obj );
+        }
+    } ),
     transform: curry( function ( transformer, obj ) {
 
         var settings = module.exports.settings;

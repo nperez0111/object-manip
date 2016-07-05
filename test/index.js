@@ -131,7 +131,24 @@ console.assert( equal( ( man.transform( {
     a: 1
 } ) ), { b: 1 } ) );
 
-//console
+console.assert( equal( ( man.transform( {
+    a: {
+        c: './c'
+    }
+}, man.transform( {
+    a: {
+        d: {
+            b: [ './c', function ( a ) {
+                return a + 1;
+            } ]
+        }
+    }
+}, {
+    a: { d: { b: 1 } }
+} ) ) ), { a: {}, c: 2 } ) );
+
+//work on multilevel backward movements, possibly
+//use a function prior to transform to automagically generate multiple transfroms 
 
 function log( a ) {
     console.log( a );
