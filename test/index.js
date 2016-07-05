@@ -125,12 +125,13 @@ console.assert( equal( ( man.transform( {
     a: { b: 1, d: 212 }
 } ) ), { a: { d: 212 }, c: 2 } ) );
 
-
-console.assert( ( man.transform( {
+console.assert( equal( ( man.transform( {
     a: './b'
 }, {
     a: 1
-} ), { b: 1 } ) );
+} ) ), { b: 1 } ) );
+
+//console
 
 function log( a ) {
     console.log( a );

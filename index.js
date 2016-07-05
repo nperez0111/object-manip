@@ -65,6 +65,7 @@ function objArr( obj, actual, callback ) {
     if ( add.length ) {
         ret = [ ret, add ];
     }
+
     return ret;
 }
 
@@ -126,7 +127,11 @@ module.exports = {
             temp = null;
         }
 
-        return objArr( transformer, obj, module.exports.callback );
+        var ret = objArr( transformer, obj, module.exports.callback );
+        if ( isArr( ret ) ) {
+            return ret[ 1 ][ 0 ][ 0 ];
+        }
+        return ret;
 
     } ),
     callback: function ( func, prop, obj ) {
@@ -163,7 +168,7 @@ module.exports = {
             var temp = module.exports.settings.reverse;
             module.exports.settings.reverse = false;
             //have to make sure that the setting isnt manipulated before insertion
-            var r = ( module.exports.transform( func, obj[ prop ], module.exports.callback ) );
+            var r = ( objArr( func, obj[ prop ], module.exports.callback ) );
             module.exports.settings.reverse = temp;
             if ( isArr( r ) ) {
                 var arr = r[ 1 ];
