@@ -305,15 +305,35 @@ module.exports = {
 
         } ) );
     },
-    deepTraversal: function ( transformed, original ) {
-        var keys = Object.keys( transformed ),
+    deepTraversal: function ( original ) {
+        var keys = Object.keys( original ),
             values = keys.map( function ( cur ) {
-                return transformed[ cur ];
+                return original[ cur ];
             } );
-        log( transformed )
-        log( original )
-        log( 'way' )
+        return ( values.map( function ( value, i ) {
+
+            var key = keys[ i ],
+                val = null;
+
+            if ( isString( value ) || isArr( value ) ) {
+
+                var s = isArr( value ) ? value[ 0 ] : value,
+                    num = levelOfTransform( s );
+                val = [ ( s.slice( num * 2 ) ), num ];
+
+            } else {
+
+                val = module.exports.deepTraversal( value )[ 0 ];
+                val[ 0 ] = key + ',' + val[ 0 ];
+
+            }
+
+            return val;
+
+        } ) );
+
     },
+    actualCopy: function () {},
     deepTransform: function ( transformer, obj ) {
         var settings = module.exports.settings;
 
@@ -332,7 +352,9 @@ module.exports = {
 		transform(posttransformed moved back a tick,transform(orginaltransform,originaldata))
         */
         var transformed = module.exports.transform( module.exports.postTransform( workNeeded ), obj );
-        log( module.exports.deepTraversal( transformed, workNeeded ) );
+        log( module.exports.deepTraversal( workNeeded ) );
+        lo( 'workNeeded', workNeeded )
+        lo( 'transformed', transformed )
 
 
     },

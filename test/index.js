@@ -1,6 +1,6 @@
 var man = require( './../index.js' );
 var equal = require( 'deep-equal' );
-
+console.time( 'Test took' );
 console.assert( equal( man.transform( {
     a: function ( b ) {
         return b + 1;
@@ -194,6 +194,16 @@ console.assert( equal( ( man.transform( {
 } ) );
 
 console.assert( equal( ( man.transform( {
+    a: './b.k'
+}, {
+    a: 1
+} ) ), {
+    b: {
+        k: 1
+    }
+} ) );
+
+console.assert( equal( ( man.transform( {
     a: {
         c: './c'
     }
@@ -268,8 +278,10 @@ console.assert( equal( man.findDeepTransforms( {
         e: '././d'
     }
 } ] ) );
+
+
 log( man.transform.deep( {
-    a: '././b',
+    a: '././b.c',
     q: {
         b: {
             c: [ '././b', function ( a ) {
@@ -300,6 +312,7 @@ log( man.transform.deep( {
 } ) );
 //work on multilevel backward movements, possibly
 //use a function prior to transform to automagically generate multiple transfroms 
+console.timeEnd( 'Test took' );
 
 function log( a ) {
     console.log( a );
