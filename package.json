@@ -1,43 +1,43 @@
 {
-  "name": "object-manip",
-  "version": "1.0.2",
-  "description": "Uses a transform object to create a new object",
-  "main": "index.js",
-  "scripts": {
-    "test": "node test/index.js",
-    "publish-please": "publish-please",
-    "prepublish": "publish-please guard"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/nperez0111/object-manip.git"
-  },
-  "keywords": [
-    "object",
-    "pojo",
-    "object",
-    "literal",
-    "transform",
-    "manipulate",
-    "functional"
-  ],
-  "author": "Nick The Sick",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/nperez0111/object-manip/issues"
-  },
-  "homepage": "https://github.com/nperez0111/object-manip#readme",
-  "dependencies": {
-    "curry": "^1.2.0",
-    "deep-equal": "^1.0.1",
-    "has-own-prop": "^1.0.0",
-    "is-circular": "^1.0.1",
-    "isarray": "^1.0.0",
-    "isfunction": "0.0.6",
-    "isobject": "^2.1.0",
-    "validate.io-string": "^1.0.2"
-  },
-  "devDependencies": {
-    "publish-please": "^2.1.4"
-  }
+    "name": "object-manip",
+    "version": "1.1.0",
+    "description": "Uses a transform object to create a new object",
+    "main": "index.js",
+    "scripts": {
+        "test": "node test/index.js",
+        "publish-please": "publish-please",
+        "prepublish": "publish-please guard"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/nperez0111/object-manip.git"
+    },
+    "keywords": [
+        "object",
+        "pojo",
+        "object",
+        "literal",
+        "transform",
+        "manipulate",
+        "functional"
+    ],
+    "author": "Nick The Sick",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/nperez0111/object-manip/issues"
+    },
+    "homepage": "https://github.com/nperez0111/object-manip#readme",
+    "dependencies": {
+        "curry": "^1.2.0",
+        "deep-equal": "^1.0.1",
+        "has-own-prop": "^1.0.0",
+        "is-circular": "^1.0.1",
+        "isarray": "^1.0.0",
+        "isfunction": "0.0.6",
+        "isobject": "^2.1.0",
+        "validate.io-string": "^1.0.2"
+    },
+    "devDependencies": {
+        "publish-please": "^2.1.4"
+    }
 }
