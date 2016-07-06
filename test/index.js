@@ -303,7 +303,7 @@ console.assert( equal( man.transform.deep( {
     q: {
         e: 123,
         b: {
-            c: 12,
+            c: [ 12, 13 ],
             e: 34
         },
         d: 3
@@ -320,7 +320,7 @@ console.assert( equal( man.transform.deep( {
     b: {
         c: 12
     },
-    d: 13
+    d: [ 13, 14 ]
 } ) );
 
 console.assert( equal( man.transform.deep( {
