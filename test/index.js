@@ -269,7 +269,7 @@ console.assert( equal( man.findDeepTransforms( {
     }
 } ] ) );
 log( man.transform.deep( {
-    a: '././a',
+    a: '././b',
     q: {
         b: {
             c: [ '././b', function ( a ) {
