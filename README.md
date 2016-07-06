@@ -171,7 +171,7 @@ transformer = {
 	a:{
 		b:'./c.d',
 		e:{
-			d:'./f'
+			d:'././f'
 		}
 	}
 }
@@ -180,8 +180,6 @@ manip(original,transformer)
 	c:{
 		d:16
 	},
-	a:{
-		f:12
-	}
+	f: 12
 }*/
 ````
