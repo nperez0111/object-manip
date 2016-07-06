@@ -280,11 +280,11 @@ console.assert( equal( man.findDeepTransforms( {
 } ] ) );
 
 
-log( man.transform.deep( {
+console.assert( equal( man.transform.deep( {
     a: '././b.c',
     q: {
         b: {
-            c: [ '././b', function ( a ) {
+            c: [ '././d', function ( a ) {
                 return a + 1;
             } ],
             e: function ( w ) {
@@ -309,9 +309,60 @@ log( man.transform.deep( {
         d: 3
     },
     e: 34
+} ), {
+    q: {
+        b: {
+            e: 17
+        },
+        d: 2
+    },
+    e: 35,
+    b: {
+        c: 12
+    },
+    d: 13
 } ) );
-//work on multilevel backward movements, possibly
-//use a function prior to transform to automagically generate multiple transfroms 
+
+console.assert( equal( man.transform.deep( {
+    a: 'b',
+    q: {
+        b: {
+            c: [ '././d', function ( a ) {
+                return a + 1;
+            } ],
+            e: function ( w ) {
+                return w / 2;
+            }
+        },
+        d: function ( e ) {
+            return e - 1;
+        }
+    },
+    e: function ( a ) {
+        return a + 1;
+    }
+}, {
+    a: 12,
+    q: {
+        e: 123,
+        b: {
+            c: 12,
+            e: 34
+        },
+        d: 3
+    },
+    e: 34
+} ), {
+    q: {
+        b: {
+            e: 17
+        },
+        d: 2
+    },
+    e: 35,
+    b: 12,
+    d: 13
+} ) );
 console.timeEnd( 'Test took' );
 
 function log( a ) {

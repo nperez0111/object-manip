@@ -211,8 +211,8 @@ module.exports = {
             if ( !isObj( val ) ) {
 
                 if ( isString( val ) || isArr( val ) ) {
-
-                    return false;
+                    var s = isArr( val ) ? val[ 0 ] : val;
+                    return levelOfTransform( s ) < 2;
 
                 }
 
@@ -333,7 +333,30 @@ module.exports = {
         } ) );
 
     },
-    actualCopy: function () {},
+    get: function ( str, obj ) {
+        var arr = ( ( str.split( ',' ) ).map( function ( cur ) {
+                return cur.split( '.' )
+            } ).reduce( function ( a, b ) {
+                return a.concat( b );
+            }, [] ) ),
+            ret = obj;
+        if ( !isObj( obj ) ) {
+            return arr;
+        }
+        arr.forEach( function ( cur ) {
+            ret = ret[ cur ];
+        } );
+        return ret;
+    },
+    actualCopy: function ( placement, valueObj ) {
+        return reducer( placement.map( function ( cur ) {
+            var cal = module.exports.get( cur[ 0 ] );
+
+            return makeObj( module.exports.get( cur[ 0 ], valueObj ), cal.slice( cal.length - 1 < cur[ 1 ] ? 0 : cur[ 1 ] ) );
+        } ) );
+
+
+    },
     deepTransform: function ( transformer, obj ) {
         var settings = module.exports.settings;
 
@@ -344,7 +367,7 @@ module.exports = {
             temp = null;
         }
 
-        var workNeeded = log( reducer( module.exports.findDeepTransforms( transformer ) ) );
+        var workNeeded = ( reducer( module.exports.findDeepTransforms( transformer ) ) );
         var easy = ( reducer( module.exports.findDeepNonTransforms( transformer ) ) );
         var yay = module.exports.transform( easy, obj );
 
@@ -352,9 +375,14 @@ module.exports = {
 		transform(posttransformed moved back a tick,transform(orginaltransform,originaldata))
         */
         var transformed = module.exports.transform( module.exports.postTransform( workNeeded ), obj );
-        log( module.exports.deepTraversal( workNeeded ) );
-        lo( 'workNeeded', workNeeded )
-        lo( 'transformed', transformed )
+        var keysToVal = ( module.exports.deepTraversal( workNeeded ) );
+        /*lo( 'keysToVal', keysToVal )
+        lo( 'transformed', transformed )*/
+        var finallyMovedBack = ( module.exports.actualCopy( keysToVal, transformed ) );
+        /*log( 'eas' );
+        log( workNeeded );*/
+
+        return Object.assign( yay, finallyMovedBack );
 
 
     },
