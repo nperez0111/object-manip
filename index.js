@@ -174,7 +174,7 @@ module.exports = {
             if ( isString( cur ) || isArr( cur ) ) {
 
                 var s = isArr( cur ) ? cur[ 0 ] : cur;
-                return levelOfTransform( cur ) > 1;
+                return levelOfTransform( s ) > 1;
 
             } else if ( isDeep && isObj( cur ) ) {
 
@@ -210,7 +210,7 @@ module.exports = {
 
             if ( !isObj( val ) ) {
 
-                if ( isString( val ) ) {
+                if ( isString( val ) || isArr( val ) ) {
 
                     return false;
 
@@ -284,9 +284,13 @@ module.exports = {
             temp = null;
         }
 
-        log( reducer( module.exports.findDeepTransforms( transformer ) ) )
-        log( 'ko' )
-        log( reducer( module.exports.findDeepNonTransforms( transformer, false ) ) )
+        var workNeeded = log( reducer( module.exports.findDeepTransforms( transformer ) ) );
+        var easy = log( reducer( module.exports.findDeepNonTransforms( transformer ) ) );
+        log( obj )
+        var yay = module.exports.transform( easy, obj );
+        lo( 'awesome', yay );
+
+
     },
     transform: curry( function ( transformer, obj ) {
 
@@ -337,11 +341,7 @@ module.exports = {
                 console.warn( "Circular Object detected, now exiting..." );
                 return null;
             }
-            var temp = module.exports.settings.reverse;
-            module.exports.settings.reverse = false;
-            //have to make sure that the setting isnt manipulated before insertion
             var r = ( objArr( func, obj[ prop ], module.exports.callback ) );
-            module.exports.settings.reverse = temp;
             if ( isArr( r ) ) {
                 var arr = r[ 1 ];
                 r = r[ 0 ];

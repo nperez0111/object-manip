@@ -269,18 +269,35 @@ console.assert( equal( man.findDeepTransforms( {
     }
 } ] ) );
 log( man.transform.deep( {
-        a: '././a',
-        q: {
-            b: {
-                c: '././b',
-                e: 34
-            },
-            d: 212
+    a: '././a',
+    q: {
+        b: {
+            c: '././b',
+            e: function ( w ) {
+                return w / 2;
+            }
         },
-        e: 123
-    } )( {} ) )
-    //work on multilevel backward movements, possibly
-    //use a function prior to transform to automagically generate multiple transfroms 
+        d: function ( e ) {
+            return e - 1;
+        }
+    },
+    e: function ( a ) {
+        return a + 1;
+    }
+}, {
+    a: 12,
+    q: {
+        e: 123,
+        b: {
+            c: 12,
+            e: 34
+        },
+        d: 3
+    },
+    e: 34
+} ) );
+//work on multilevel backward movements, possibly
+//use a function prior to transform to automagically generate multiple transfroms 
 
 function log( a ) {
     console.log( a );
