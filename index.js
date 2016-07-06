@@ -274,6 +274,43 @@ module.exports = {
         } ) );
 
     },
+    deepTraversal: function ( transformer ) {
+        var keys = Object.keys( transformer ),
+            values = keys.map( function ( cur ) {
+                return transformer[ cur ];
+            } );
+    },
+    postTransform: function ( transformer ) {
+
+        var keys = Object.keys( transformer ),
+            values = keys.map( function ( cur ) {
+                return transformer[ cur ];
+            } );
+
+        return reducer( values.map( function ( value, i ) {
+
+            var key = keys[ i ],
+                val = null;
+
+            if ( isString( value ) || isArr( value ) ) {
+
+                var s = isArr( value ) ? value[ 0 ] : value;
+                val = s.slice( levelOfTransform( s ) * 2 );
+
+                if ( isArr( value ) ) {
+                    val = [ val, value[ 1 ] ];
+                }
+
+            } else {
+
+                val = module.exports.postTransform( value );
+
+            }
+
+            return createObj( key, val );
+
+        } ) );
+    },
     deepTransform: function ( transformer, obj ) {
         var settings = module.exports.settings;
 
@@ -285,10 +322,13 @@ module.exports = {
         }
 
         var workNeeded = log( reducer( module.exports.findDeepTransforms( transformer ) ) );
-        var easy = log( reducer( module.exports.findDeepNonTransforms( transformer ) ) );
-        log( obj )
+        var easy = ( reducer( module.exports.findDeepNonTransforms( transformer ) ) );
         var yay = module.exports.transform( easy, obj );
-        lo( 'awesome', yay );
+
+        /*
+		transform(posttransformed moved back a tick,transform(orginaltransform,originaldata))
+        */
+        log( module.exports.postTransform( workNeeded ) );
 
 
     },

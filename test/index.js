@@ -272,7 +272,9 @@ log( man.transform.deep( {
     a: '././a',
     q: {
         b: {
-            c: '././b',
+            c: [ '././b', function ( a ) {
+                return a + 1;
+            } ],
             e: function ( w ) {
                 return w / 2;
             }
