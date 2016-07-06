@@ -268,9 +268,19 @@ console.assert( equal( man.findDeepTransforms( {
         e: '././d'
     }
 } ] ) );
-
-//work on multilevel backward movements, possibly
-//use a function prior to transform to automagically generate multiple transfroms 
+log( man.transform.deep( {
+        a: '././a',
+        q: {
+            b: {
+                c: '././b',
+                e: 34
+            },
+            d: 212
+        },
+        e: 123
+    } )( {} ) )
+    //work on multilevel backward movements, possibly
+    //use a function prior to transform to automagically generate multiple transfroms 
 
 function log( a ) {
     console.log( a );

@@ -106,7 +106,7 @@ function parseStr( str, cur, keys, values, func ) {
 function createObj( keys, values ) {
     var ret = {};
     if ( isArr( keys ) && isArr( values ) ) {
-        keys.forEach( ( cur, i ) => {
+        keys.forEach( function ( cur, i ) {
             ret[ cur ] = values[ i ];
         } );
 
@@ -128,6 +128,21 @@ function makeObj( val, props ) {
     return obj;
 }
 
+function reducer( val ) {
+
+    return val.reduce( function ( acc, obj ) {
+
+        if ( isArr( obj ) ) {
+
+            return Object.assign( {}, acc, reducer( obj ) );
+
+        }
+
+        return Object.assign( {}, acc, obj );
+
+    }, {} );
+};
+
 function levelOfTransform( str, num ) {
     var arr = Array.from( str );
     if ( arr.shift() == '.' && arr.shift() == '/' ) {
@@ -148,7 +163,7 @@ module.exports = {
                 return transformer[ cur ];
             } );
 
-        if ( isCircular( transformer ) ) {
+        if ( isObj( transformer ) && isCircular( transformer ) ) {
             //just a check as this is a recursive method
             console.warn( 'Circular reference found and is unsupported. exiting...' );
             return null;
@@ -172,17 +187,73 @@ module.exports = {
 
         } );
     },
-    findDeepTransforms: function ( transformer ) {
+    findDeepNonTransforms: function ( transformer ) {
         var keys = Object.keys( transformer ),
             values = keys.map( function ( cur ) {
-                return transformer[ cur ]
+                return transformer[ cur ];
+            } ),
+            arr = values.slice( 0 );
+
+        if ( keys.length == 0 ) {
+
+            return arr;
+
+        }
+
+        values = values.map( function ( c, i ) {
+
+            return i;
+
+        } ).filter( function ( value, i ) {
+
+            var val = values[ value ];
+
+            if ( !isObj( val ) ) {
+
+                if ( isString( val ) ) {
+
+                    return false;
+
+                }
+
+                return true;
+
+            }
+
+            //figure out what to do about deep objects
+            return module.exports.findDeepNonTransforms( val ).length !== 0;
+
+        } );
+
+        return values.map( function ( cur ) {
+
+            var val = arr[ cur ],
+                key = keys[ cur ];
+
+            if ( !isObj( val ) ) {
+
+                return createObj( key, val );
+
+            }
+
+            //look inside the val for non transforms
+            return createObj( key, reducer( module.exports.findDeepNonTransforms( val ) ) );
+
+        } );
+
+    },
+    findDeepTransforms: function ( transformer, notTransforms ) {
+        notTransforms = notTransforms === undefined ? true : notTransforms;
+        var keys = Object.keys( transformer ),
+            values = keys.map( function ( cur ) {
+                return transformer[ cur ];
             } ),
             arr = [];
         if ( keys.length == 0 ) {
             return arr;
         }
         var deepTransformKeys = ( keys.map( function ( cur, i ) {
-            return [ module.exports.hasDeepTransform( createObj( cur, values[ i ] ), true ), i ];
+            return [ module.exports.hasDeepTransform( createObj( cur, values[ i ] ), true ) === notTransforms, i ];
         } ).filter( function ( a ) {
             return a[ 0 ];
         } ) );
@@ -195,21 +266,6 @@ module.exports = {
 
                 val = module.exports.findDeepTransforms( val );
 
-                var reducer = ( function ( val ) {
-
-                    return val.reduce( function ( acc, obj ) {
-
-                        if ( isArr( obj ) ) {
-
-                            return Object.assign( {}, acc, reducer( obj ) );
-
-                        }
-
-                        return Object.assign( {}, acc, obj );
-
-                    }, {} );
-                } );
-
                 val = reducer( val );
             }
 
@@ -218,7 +274,20 @@ module.exports = {
         } ) );
 
     },
-    deepTransform: function ( transformer, obj ) {},
+    deepTransform: function ( transformer, obj ) {
+        var settings = module.exports.settings;
+
+        if ( settings.reverse ) {
+            var temp = obj;
+            obj = transformer;
+            transformer = temp;
+            temp = null;
+        }
+
+        log( reducer( module.exports.findDeepTransforms( transformer ) ) )
+        log( 'ko' )
+        log( reducer( module.exports.findDeepNonTransforms( transformer, false ) ) )
+    },
     transform: curry( function ( transformer, obj ) {
 
         var settings = module.exports.settings;
