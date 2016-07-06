@@ -392,6 +392,38 @@ assert( ( man.transform.deep( {
     c: [ "ok" ]
 } );
 
+assert( man.transform( {
+    a: {
+        b: 'c'
+    }
+}, {
+    a: {
+        b: 1,
+        c: 2
+    }
+} ), {
+    a: {
+        c: 1
+    }
+} );
+
+assert( man.transform( {
+    a: {
+        b: 'c',
+        d: 'c'
+    }
+}, {
+    a: {
+        b: 1,
+        c: 2,
+        d: 3
+    }
+} ), {
+    a: {
+        c: 3
+    }
+} );
+
 console.timeEnd( 'Test took' );
 
 function log( a ) {
