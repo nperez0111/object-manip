@@ -147,7 +147,6 @@ console.assert( equal( man.transform( {
         b: 1
     }
 } ), {
-    a: {},
     c: 1
 } ) );
 
@@ -162,7 +161,6 @@ console.assert( equal( man.transform( {
         b: 1
     }
 } ), {
-    a: {},
     c: 2
 } ) );
 
@@ -222,7 +220,6 @@ console.assert( equal( ( man.transform( {
         }
     }
 } ) ) ), {
-    a: {},
     c: 2
 } ) );
 
@@ -363,9 +360,45 @@ console.assert( equal( man.transform.deep( {
     b: 12,
     d: 13
 } ) );
+
+assert( ( man.transform.deep( {
+    a: {
+        b: {
+            d: '././c'
+        }
+    }
+}, {
+    a: {
+        b: {
+            d: 12
+        }
+    }
+} ) ), {
+    c: 12
+} );
+assert( ( man.transform.deep( {
+    a: {
+        b: {
+            d: '././c'
+        }
+    }
+}, {
+    a: {
+        b: {
+            d: [ "ok" ]
+        }
+    }
+} ) ), {
+    c: [ "ok" ]
+} );
+
 console.timeEnd( 'Test took' );
 
 function log( a ) {
     console.log( a );
     return a;
+}
+
+function assert( a, b ) {
+    console.assert( equal( a, b ) );
 }
