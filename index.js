@@ -274,12 +274,6 @@ module.exports = {
         } ) );
 
     },
-    deepTraversal: function ( transformer ) {
-        var keys = Object.keys( transformer ),
-            values = keys.map( function ( cur ) {
-                return transformer[ cur ];
-            } );
-    },
     postTransform: function ( transformer ) {
 
         var keys = Object.keys( transformer ),
@@ -311,6 +305,15 @@ module.exports = {
 
         } ) );
     },
+    deepTraversal: function ( transformed, original ) {
+        var keys = Object.keys( transformed ),
+            values = keys.map( function ( cur ) {
+                return transformed[ cur ];
+            } );
+        log( transformed )
+        log( original )
+        log( 'way' )
+    },
     deepTransform: function ( transformer, obj ) {
         var settings = module.exports.settings;
 
@@ -328,7 +331,8 @@ module.exports = {
         /*
 		transform(posttransformed moved back a tick,transform(orginaltransform,originaldata))
         */
-        log( module.exports.postTransform( workNeeded ) );
+        var transformed = module.exports.transform( module.exports.postTransform( workNeeded ), obj );
+        log( module.exports.deepTraversal( transformed, workNeeded ) );
 
 
     },
