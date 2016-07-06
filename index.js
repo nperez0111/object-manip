@@ -60,6 +60,11 @@ function objArr( obj, actual, callback ) {
     }
 
     keys.forEach( function ( cur, i ) {
+        if ( isObj( values[ i ] ) ) {
+            if ( Object.keys( values[ i ] ).length == 0 ) {
+                return;
+            }
+        }
         ret[ cur ] = values[ i ];
     } );
     if ( add.length ) {
@@ -153,7 +158,7 @@ function levelOfTransform( str, num ) {
 
 
 
-module.exports = {
+var d = {
     hasDeepTransform: function ( transformer, isDeep ) {
 
         isDeep = isDeep == undefined ? true : isDeep;
@@ -372,7 +377,7 @@ module.exports = {
         var yay = module.exports.transform( easy, obj );
 
         /*
-		transform(posttransformed moved back a tick,transform(orginaltransform,originaldata))
+        transform(posttransformed moved back a tick,transform(orginaltransform,originaldata))
         */
         var transformed = module.exports.transform( module.exports.postTransform( workNeeded ), obj );
         var keysToVal = ( module.exports.deepTraversal( workNeeded ) );
@@ -457,13 +462,24 @@ module.exports = {
         reverse: false
     }
 }
-module.exports.transform.deep = curry( function ( transformer, obj ) {
+var deep = curry( function ( transformer, obj ) {
     if ( module.exports.hasDeepTransform( transformer ) ) {
         return module.exports.deepTransform( transformer, obj );
     } else {
         return module.exports.transform( transformer, obj );
     }
 } );
+
+module.exports = deep;
+Object.keys( d ).forEach( function ( a ) {
+    module.exports[ a ] = d[ a ];
+} );
+
+module.exports.transform.deep = deep;
+module.exports.deep = deep;
+module.exports.not = {
+    deep: d.transform
+};
 
 function log( a ) {
     console.log( a );
