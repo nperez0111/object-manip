@@ -70,6 +70,7 @@ function replaceValues( obj, actual, callback ) {
         }
         ret[ cur ] = values[ i ];
     } );
+
     if ( add.length ) {
         ret = [ ret, add ];
     }
@@ -83,30 +84,23 @@ function parseRelocator( str, cur, keys, values, func ) {
         str = str.slice( 2 );
         back = true;
     }
+
     var props = str.split( '.' ),
         value = func ? valueOf( values[ cur ], func ) : values[ cur ];
-    /*log( 'parsing' )
-    log( keys[ cur ] )
-    log( values[ cur ] )*/
-    if ( !back ) {
-        if ( props.length == 1 ) {
-            keys[ cur ] = str;
-            values[ cur ] = value;
-            return [ keys, values ];
-        }
+
+    if ( back == false ) {
+
         keys[ cur ] = props.shift();
-        values[ cur ] = makeObj( value, props );
+        values[ cur ] = props.length == 0 ? value : makeObj( value, props );
         return [ keys, values ];
-    } else {
-        keys.splice( cur, 1 );
-        values.splice( cur, 1 );
-        if ( props.length == 1 ) {
-            var r = {};
-            r[ str ] = value;
-            return [ keys, values, [ r, str ] ];
-        }
-        return [ keys, values, [ makeObj( value, props ), props[ 0 ] ] ];
+
     }
+
+    keys.splice( cur, 1 );
+    values.splice( cur, 1 );
+    var obj = props.length == 1 ? createObj( str, value ) : makeObj( value, props );
+    return [ keys, values, [ obj, props[ 0 ] ] ];
+
     /*returns in format [keys,values,[optional val to set]]*/
 
 }
@@ -115,7 +109,7 @@ function valueOf( val, func ) {
     if ( isArray( val ) ) {
 
         return val.map( function ( currentValue, index, arr ) {
-            return func.call( module.exports.settings, currentValue, index, arr );
+            return func.call( module.exports.settings.thisArg, currentValue, index, arr );
         } );
 
     }
@@ -137,6 +131,7 @@ function createObj( keys, values ) {
     return ret;
 }
 
+// makeOBj(123,[a,b,c])=={a:{b:{c:123}}}
 function makeObj( val, props ) {
     var obj = {};
     props.reverse();
