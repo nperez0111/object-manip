@@ -42,7 +42,7 @@ function replaceValues( obj, actual, callback ) {
             }
             //log( 'preparse' )
 
-            var postParse = parseStr( str, ( cur[ 1 ] ), keys, values, func );
+            var postParse = parseRelocator( str, ( cur[ 1 ] ), keys, values, func );
             keys = postParse[ 0 ];
             values = postParse[ 1 ];
             if ( postParse.length == 3 ) {
@@ -77,14 +77,14 @@ function replaceValues( obj, actual, callback ) {
     return ret;
 }
 
-function parseStr( str, cur, keys, values, func ) {
+function parseRelocator( str, cur, keys, values, func ) {
     var back = false;
     if ( str.charAt( 0 ) == '.' && str.charAt( 1 ) == '/' ) {
         str = str.slice( 2 );
         back = true;
     }
     var props = str.split( '.' ),
-        value = func ? isArray( values[ cur ] ) ? values[ cur ].map( func ) : func( values[ cur ] ) : values[ cur ];
+        value = func ? valueOf( values[ cur ], func ) : values[ cur ];
     /*log( 'parsing' )
     log( keys[ cur ] )
     log( values[ cur ] )*/
@@ -109,6 +109,19 @@ function parseStr( str, cur, keys, values, func ) {
     }
     /*returns in format [keys,values,[optional val to set]]*/
 
+}
+
+function valueOf( val, func ) {
+    if ( isArray( val ) ) {
+
+        return val.map( function ( currentValue, index, arr ) {
+            return func.call( module.exports.settings, currentValue, index, arr );
+        } );
+
+    }
+    //maybe add another thing into the call
+
+    return func.call( module.exports.settings.thisArg, val );
 }
 
 function createObj( keys, values ) {
@@ -252,47 +265,59 @@ var d = {
     },
     findDeepTransforms: function ( transformer, notTransforms ) {
         notTransforms = notTransforms === undefined ? true : notTransforms;
-        var keys = Object.keys( transformer ),
-            values = keys.map( function ( cur ) {
-                return transformer[ cur ];
-            } ),
-            arr = [];
-        if ( keys.length == 0 ) {
-            return arr;
-        }
-        var deepTransformKeys = ( keys.map( function ( cur, i ) {
-            return [ module.exports.hasDeepTransform( createObj( cur, values[ i ] ), true ) === notTransforms, i ];
-        } ).filter( function ( a ) {
-            return a[ 0 ];
-        } ) );
-        return ( deepTransformKeys.map( function ( cur ) {
 
-            var key = keys[ cur[ 1 ] ],
-                val = values[ cur[ 1 ] ];
+        return module.exports.traverse( transformer, function ( cur, i, value ) {
+            //[boolean checking if immediate values in the object have deeptransforms needed, index]
+            return [ module.exports.hasDeepTransform( createObj( cur, value ), true ) === notTransforms, [ cur, value ] ];
+
+        }, false, true ).filter( function ( a ) {
+            return a[ 0 ];
+
+        } ).map( function ( cur ) {
+            var key = cur[ 1 ][ 0 ],
+                val = cur[ 1 ][ 1 ];
 
             if ( isObj( val ) ) {
 
-                val = module.exports.findDeepTransforms( val );
+                val = reducer( module.exports.findDeepTransforms( val ) );
 
-                val = reducer( val );
             }
 
             return createObj( key, val );
 
-        } ) );
+        } );
 
+    },
+    traverse: function ( objecto, funct, shouldReduce, useKeys ) {
+        var keys = Object.keys( objecto ),
+            values = keys.map( function ( cur ) {
+                return objecto[ cur ];
+            } );
+        if ( useKeys ) {
+            var temp = values;
+            values = keys;
+            keys = temp;
+            temp = null;
+        }
+        mapper = values.map( function ( val, index ) {
+
+            return funct( val, index, keys[ index ] );
+
+        } );
+
+        if ( shouldReduce ) {
+
+            mapper = reducer( mapper );
+
+        }
+
+        return mapper;
     },
     postTransform: function ( transformer ) {
 
-        var keys = Object.keys( transformer ),
-            values = keys.map( function ( cur ) {
-                return transformer[ cur ];
-            } );
+        return ( module.exports.traverse( transformer, function ( value, i, key ) {
 
-        return reducer( values.map( function ( value, i ) {
-
-            var key = keys[ i ],
-                val = null;
+            var val = null;
 
             if ( isStringOrArr( value ) ) {
 
@@ -311,17 +336,13 @@ var d = {
 
             return createObj( key, val );
 
-        } ) );
+        }, true ) );
     },
     deepTraversal: function ( original ) {
-        var keys = Object.keys( original ),
-            values = keys.map( function ( cur ) {
-                return original[ cur ];
-            } );
-        return ( values.map( function ( value, i ) {
 
-            var key = keys[ i ],
-                val = null;
+        return ( module.exports.traverse( original, function ( value, i, key ) {
+
+            var val = null;
 
             if ( isStringOrArr( value ) ) {
 
@@ -342,19 +363,32 @@ var d = {
 
     },
     get: function ( str, obj ) {
+
         var arr = ( ( str.split( ',' ) ).map( function ( cur ) {
-                return cur.split( '.' )
+
+                return cur.split( '.' );
+
             } ).reduce( function ( a, b ) {
+
                 return a.concat( b );
+
             }, [] ) ),
             ret = obj;
+
         if ( !isObj( obj ) ) {
+            //if something passed in the second arg return the array they want.
             return arr;
+
         }
+
         arr.forEach( function ( cur ) {
+
             ret = ret[ cur ];
+
         } );
+
         return ret;
+
     },
     actualCopy: function ( placement, valueObj ) {
         return reducer( placement.map( function ( cur ) {
@@ -419,13 +453,7 @@ var d = {
 
             if ( hasOwnProp( obj, prop ) ) {
 
-                if ( isArray( obj[ prop ] ) ) {
-
-                    return obj[ prop ].map( func );
-
-                }
-
-                return func( obj[ prop ] );
+                return valueOf( obj[ prop ], func );
 
             } else {
 
@@ -438,17 +466,20 @@ var d = {
                 console.warn( "Circular Object detected, now exiting..." );
                 return null;
             }
-            var r = ( replaceValues( func, obj[ prop ], module.exports.callback ) );
-            if ( isArray( r ) ) {
-                var arr = r[ 1 ];
-                r = r[ 0 ];
-                needsToBeSetBack = arr.map( function ( wentBack ) {
+            var objPostTransform = ( replaceValues( func, obj[ prop ], module.exports.callback ) );
+            if ( isArray( objPostTransform ) ) {
+                //is in format[object itself, objects to be sent up a level]
+                needsToBeSetBack = objPostTransform[ 1 ].map( function ( wentBack ) {
                     return wentBack[ 0 ];
                 } );
+
+                objPostTransform = objPostTransform[ 0 ];
             }
-            return r;
+            return objPostTransform;
 
         }
+
+        //should just overwrite the value if is not a string, function, or object
         return func;
 
     },
@@ -457,7 +488,8 @@ var d = {
         return module.exports.settings.reverse;
     },
     settings: {
-        reverse: false
+        reverse: false,
+        thisArg: null
     }
 }
 var deep = curry( function ( transformer, obj ) {
