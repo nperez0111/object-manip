@@ -33,6 +33,7 @@ function replaceValues( obj, actual, callback ) {
         ret = {};
 
     if ( edits.length ) {
+
         edits.forEach( function ( cur ) {
             var str = cur[ 0 ],
                 func = false;
@@ -42,24 +43,35 @@ function replaceValues( obj, actual, callback ) {
             }
             //log( 'preparse' )
 
-            var postParse = parseRelocator( str, ( cur[ 1 ] ), keys, values, func );
+            var postParse = parseRelocator( str, cur[ 1 ], keys, values, func );
             keys = postParse[ 0 ];
             values = postParse[ 1 ];
+
             if ( postParse.length == 3 ) {
+
                 add.push( ( postParse[ 2 ] ) );
+
             }
         } );
+
     }
+
     if ( setBack.length ) {
+
         setBack.forEach( function ( cur ) {
+
             cur.forEach( function ( objy ) {
+
                 keys = keys.concat( Object.keys( objy ) );
+
                 values = values.concat( Object.keys( objy ).map( function ( a ) {
                     return objy[ a ];
                 } ) );
+
             } );
 
         } );
+
     }
 
     keys.forEach( function ( cur, i ) {
