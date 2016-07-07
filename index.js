@@ -2,13 +2,16 @@ var isString = require( 'validate.io-string' ),
     curry = require( 'curry' ),
     isFunc = require( 'isfunction' ),
     isObj = require( 'isobject' ),
-    isArr = require( 'isarray' ),
+    isArray = require( 'isArray' ),
     hasOwnProp = require( 'has-own-prop' ),
     flag = false,
     needsToBeSetBack = false,
-    isCircular = require( 'is-circular' );
+    isCircular = require( 'is-circular' ),
+    isStringOrArr = function ( a ) {
+        return isString( a ) || isArray( a );
+    };
 
-function objArr( obj, actual, callback ) {
+function replaceValues( obj, actual, callback ) {
     var keys = Object.keys( obj ),
         edits = [],
         setBack = [],
@@ -33,7 +36,7 @@ function objArr( obj, actual, callback ) {
         edits.forEach( function ( cur ) {
             var str = cur[ 0 ],
                 func = false;
-            if ( isArr( cur[ 0 ] ) ) {
+            if ( isArray( cur[ 0 ] ) ) {
                 str = cur[ 0 ][ 0 ];
                 func = cur[ 0 ][ 1 ];
             }
@@ -81,7 +84,7 @@ function parseStr( str, cur, keys, values, func ) {
         back = true;
     }
     var props = str.split( '.' ),
-        value = func ? isArr( values[ cur ] ) ? values[ cur ].map( func ) : func( values[ cur ] ) : values[ cur ];
+        value = func ? isArray( values[ cur ] ) ? values[ cur ].map( func ) : func( values[ cur ] ) : values[ cur ];
     /*log( 'parsing' )
     log( keys[ cur ] )
     log( values[ cur ] )*/
@@ -110,7 +113,7 @@ function parseStr( str, cur, keys, values, func ) {
 
 function createObj( keys, values ) {
     var ret = {};
-    if ( isArr( keys ) && isArr( values ) ) {
+    if ( isArray( keys ) && isArray( values ) ) {
         keys.forEach( function ( cur, i ) {
             ret[ cur ] = values[ i ];
         } );
@@ -137,7 +140,7 @@ function reducer( val ) {
 
     return val.reduce( function ( acc, obj ) {
 
-        if ( isArr( obj ) ) {
+        if ( isArray( obj ) ) {
 
             return Object.assign( {}, acc, reducer( obj ) );
 
@@ -176,9 +179,9 @@ var d = {
 
         return values.some( function ( cur ) {
 
-            if ( isString( cur ) || isArr( cur ) ) {
+            if ( isStringOrArr( cur ) ) {
 
-                var s = isArr( cur ) ? cur[ 0 ] : cur;
+                var s = isArray( cur ) ? cur[ 0 ] : cur;
                 return levelOfTransform( s ) > 1;
 
             } else if ( isDeep && isObj( cur ) ) {
@@ -215,8 +218,8 @@ var d = {
 
             if ( !isObj( val ) ) {
 
-                if ( isString( val ) || isArr( val ) ) {
-                    var s = isArr( val ) ? val[ 0 ] : val;
+                if ( isStringOrArr( val ) ) {
+                    var s = isArray( val ) ? val[ 0 ] : val;
                     return levelOfTransform( s ) < 2;
 
                 }
@@ -291,12 +294,12 @@ var d = {
             var key = keys[ i ],
                 val = null;
 
-            if ( isString( value ) || isArr( value ) ) {
+            if ( isStringOrArr( value ) ) {
 
-                var s = isArr( value ) ? value[ 0 ] : value;
+                var s = isArray( value ) ? value[ 0 ] : value;
                 val = s.slice( levelOfTransform( s ) * 2 );
 
-                if ( isArr( value ) ) {
+                if ( isArray( value ) ) {
                     val = [ val, value[ 1 ] ];
                 }
 
@@ -320,9 +323,9 @@ var d = {
             var key = keys[ i ],
                 val = null;
 
-            if ( isString( value ) || isArr( value ) ) {
+            if ( isStringOrArr( value ) ) {
 
-                var s = isArr( value ) ? value[ 0 ] : value,
+                var s = isArray( value ) ? value[ 0 ] : value,
                     num = levelOfTransform( s );
                 val = [ ( s.slice( num * 2 ) ), num ];
 
@@ -356,11 +359,9 @@ var d = {
     actualCopy: function ( placement, valueObj ) {
         return reducer( placement.map( function ( cur ) {
             var cal = module.exports.get( cur[ 0 ] );
-
+            //fix bug where splitting via , shoul be handled seperate from .
             return makeObj( module.exports.get( cur[ 0 ], valueObj ), cal.slice( cal.length - 1 < cur[ 1 ] ? 0 : cur[ 1 ] ) );
         } ) );
-
-
     },
     deepTransform: function ( transformer, obj ) {
         var settings = module.exports.settings;
@@ -376,9 +377,6 @@ var d = {
         var easy = ( reducer( module.exports.findDeepNonTransforms( transformer ) ) );
         var yay = module.exports.transform( easy, obj );
 
-        /*
-        transform(posttransformed moved back a tick,transform(orginaltransform,originaldata))
-        */
         var transformed = module.exports.transform( module.exports.postTransform( workNeeded ), obj );
         var keysToVal = ( module.exports.deepTraversal( workNeeded ) );
         /*lo( 'keysToVal', keysToVal )
@@ -402,8 +400,8 @@ var d = {
             temp = null;
         }
 
-        var ret = objArr( transformer, obj, module.exports.callback );
-        if ( isArr( ret ) ) {
+        var ret = replaceValues( transformer, obj, module.exports.callback );
+        if ( isArray( ret ) ) {
             return ret[ 1 ][ 0 ][ 0 ];
         }
         return ret;
@@ -411,7 +409,7 @@ var d = {
     } ),
     callback: function ( func, prop, obj ) {
 
-        if ( isString( func ) || isArr( func ) ) {
+        if ( isStringOrArr( func ) ) {
 
             flag = func;
 
@@ -421,7 +419,7 @@ var d = {
 
             if ( hasOwnProp( obj, prop ) ) {
 
-                if ( isArr( obj[ prop ] ) ) {
+                if ( isArray( obj[ prop ] ) ) {
 
                     return obj[ prop ].map( func );
 
@@ -440,8 +438,8 @@ var d = {
                 console.warn( "Circular Object detected, now exiting..." );
                 return null;
             }
-            var r = ( objArr( func, obj[ prop ], module.exports.callback ) );
-            if ( isArr( r ) ) {
+            var r = ( replaceValues( func, obj[ prop ], module.exports.callback ) );
+            if ( isArray( r ) ) {
                 var arr = r[ 1 ];
                 r = r[ 0 ];
                 needsToBeSetBack = arr.map( function ( wentBack ) {
@@ -456,7 +454,7 @@ var d = {
     },
     toggleReverse: function () {
         module.exports.settings.reverse = !module.exports.settings.reverse;
-        return module.exports.settings.reverse
+        return module.exports.settings.reverse;
     },
     settings: {
         reverse: false
