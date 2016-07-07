@@ -209,30 +209,13 @@ var d = {
         } );
     },
     findDeepNonTransforms: function ( transformer ) {
-        var keys = Object.keys( transformer ),
-            values = keys.map( function ( cur ) {
-                return transformer[ cur ];
-            } ),
-            arr = values.slice( 0 );
 
-        if ( keys.length == 0 ) {
+        var passesTest = function ( value ) {
 
-            return arr;
+            if ( !isObj( value ) ) {
 
-        }
-
-        values = values.map( function ( c, i ) {
-
-            return i;
-
-        } ).filter( function ( value, i ) {
-
-            var val = values[ value ];
-
-            if ( !isObj( val ) ) {
-
-                if ( isStringOrArr( val ) ) {
-                    var s = isArray( val ) ? val[ 0 ] : val;
+                if ( isStringOrArr( value ) ) {
+                    var s = isArray( value ) ? value[ 0 ] : value;
                     return levelOfTransform( s ) < 2;
 
                 }
@@ -241,25 +224,24 @@ var d = {
 
             }
 
-            //figure out what to do about deep objects
-            return module.exports.findDeepNonTransforms( val ).length !== 0;
+            return module.exports.findDeepNonTransforms( value ).length !== 0;
 
-        } );
+        };
+        return module.exports.traverse( transformer, function ( value, i, key ) {
+            if ( passesTest( value ) ) {
 
-        return values.map( function ( cur ) {
+                if ( !isObj( value ) ) {
 
-            var val = arr[ cur ],
-                key = keys[ cur ];
+                    return createObj( key, value );
 
-            if ( !isObj( val ) ) {
+                }
 
-                return createObj( key, val );
-
+                //look inside the val for non transforms
+                return createObj( key, reducer( module.exports.findDeepNonTransforms( value ) ) );
             }
-
-            //look inside the val for non transforms
-            return createObj( key, reducer( module.exports.findDeepNonTransforms( val ) ) );
-
+            return false;
+        } ).filter( function ( a ) {
+            return a !== false;
         } );
 
     },
