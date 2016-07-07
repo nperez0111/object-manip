@@ -424,6 +424,21 @@ assert( man.transform( {
     }
 } );
 
+man.settings.thisArg = {
+    x: 12,
+    y: 14
+};
+
+assert( man.transform( {
+    a: function ( d ) {
+        return d + this.x;
+    }
+}, {
+    a: 3
+} ), {
+    a: 15
+} );
+
 console.timeEnd( 'Test took' );
 
 function log( a ) {

@@ -1,7 +1,8 @@
 Object-Manip
 ============
+Transforms POJOs into other POJOs using POJOs.
 
-Basically Array.map for Objects. 
+Basically Array.map for Objects using Objects instead of functions. 
 
 Installation
 ============
@@ -65,7 +66,7 @@ transformer = {
 		return currentValue + index;
 	}
 }
-manip(original,transformer)
+manip(transformer,original)
 //{ a: [ 1, 3, 4 ] }
 
 ````
@@ -80,7 +81,7 @@ original = {
 transformer = {
 	a: 'b'
 }
-manip(original,transformer)
+manip(transformer,original)
 //{ a: { b: 2 } }
 
 ````
@@ -98,7 +99,7 @@ original = {
 transformer = {
 	a: 'b.c.d'
 }
-manip(original,transformer)
+manip(transformer,original)
 //{ a: { b: { c: { d: 2 } } } }
 
 ````
@@ -116,7 +117,7 @@ original = {
 transformer = {
 	a: ['b.c',function (x){return x + 1;}
 }
-manip(original,transformer)
+manip(transformer,original)
 //{ a: { b: { c: 3 } } }
 ````
 
@@ -131,7 +132,7 @@ original = {
 transformer = {
 	a: ['b.c',function ( current, index ){ return current + index; }
 }
-manip(original,transformer)
+manip(transformer,original)
 //{ a: { b: { c: [ 2, 4, 5 ] } } }
 
 ````
@@ -150,7 +151,7 @@ transformer = {
 		b:'./c'
 	}
 }
-manip(original,transformer)
+manip(transformer,original)
 //{c:16}
 
 ````
@@ -175,11 +176,32 @@ transformer = {
 		}
 	}
 }
-manip(original,transformer)
+manip(transformer,original)
 /*{
 	c:{
 		d:16
 	},
 	f: 12
 }*/
+````
+
+## This Argument
+
+You are able to run the function with a given this by giving it a running context by setting `manip.settings.thisArg` to the context you would like to run it in.
+
+````JS
+manip.settings.thisArg = {
+	x:12,
+	y:13
+};
+original = {
+	a: 3
+}
+transformer = {
+	a: function (currentValue) {
+		return a + this.x + this.y
+	}
+}
+manip(transformer,original)
+//{a:12+13+3} or {a:28}
 ````
