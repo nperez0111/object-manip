@@ -190,10 +190,10 @@ manip(transformer,original)
 You are able to run the function with a given this by giving it a running context by setting `manip.settings.thisArg` to the context you would like to run it in.
 
 ````JS
-manip.settings.thisArg = {
+manip.setThis( {
 	x:12,
 	y:13
-};
+} );
 original = {
 	a: 3
 }
@@ -205,3 +205,31 @@ transformer = {
 manip(transformer,original)
 //{a:12+13+3} or {a:28}
 ````
+
+## Curried
+
+The manip object is already pre-curried so you can partially apply transforms and use different input objects like in the example.
+
+```JS
+transformer = {
+	a:function (x) {
+		return x-2;
+	}
+}
+var preLoaded = manip(transformer);
+
+data = {
+	a:2
+}
+
+preLoaded(data);
+//{a:0}
+
+data = {
+	a:4
+}
+
+preLoaded(data);
+//{a:2}
+
+```

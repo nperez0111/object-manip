@@ -476,6 +476,10 @@ var d = {
         module.exports.settings.reverse = !module.exports.settings.reverse;
         return module.exports.settings.reverse;
     },
+    setThis: function ( newThis ) {
+        module.exports.settings.thisArg = newThis;
+        return true;
+    },
     settings: {
         reverse: false,
         thisArg: null
