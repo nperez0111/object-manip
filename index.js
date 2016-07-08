@@ -191,11 +191,7 @@ var d = {
                 return transformer[ cur ];
             } );
 
-        if ( isObj( transformer ) && isCircular( transformer ) ) {
-            //just a check as this is a recursive method
-            console.warn( 'Circular reference found and is unsupported. exiting...' );
-            return null;
-        }
+
 
         return values.some( function ( cur ) {
 
@@ -451,10 +447,7 @@ var d = {
             }
 
         } else if ( isObj( func ) && isObj( obj ) ) {
-            if ( isCircular( func ) ) {
-                console.warn( "Circular Object detected, now exiting..." );
-                return null;
-            }
+
             var objPostTransform = ( replaceValues( func, obj[ prop ], module.exports.callback ) );
             if ( isArray( objPostTransform ) ) {
                 //is in format[object itself, objects to be sent up a level]
@@ -485,12 +478,55 @@ var d = {
         thisArg: null
     }
 }
-var deep = curry( function ( transformer, obj ) {
-    if ( module.exports.hasDeepTransform( transformer ) ) {
-        return module.exports.deepTransform( transformer, obj );
-    } else {
-        return module.exports.transform( transformer, obj );
+
+function checkIfIsCircular( obj ) {
+    if ( isObj( transformer ) && isCircular( transformer ) ) {
+        //just a check as this is a recursive method
+        console.warn( 'Circular reference found and is unsupported. exiting...' );
+        return true;
     }
+    return false;
+}
+
+function transformerTypesInCorrect( transformer ) {
+    return module.exports.traverse( transformer, function ( val ) {
+        if ( isString( val ) ) {
+            return true;
+        }
+        if ( isArray( val ) ) {
+            if ( isString( val[ 0 ] ) ) {
+                return true;
+            }
+            if ( isArray( val ) && val.length == 2 ) {
+                return isString( val[ 0 ] ) && isfunction( val[ 1 ] );
+            }
+            return false;
+
+        }
+    } );
+}
+
+function transformerIsInCorrectFormat( transformer ) {
+    if ( checkIfIsCircular( obj ) ) {
+        return false;
+    }
+    if ( transformerTypesInCorrect( transformer ) ) {
+        return false;
+    }
+}
+
+function dataIsInCorrectFormat( data ) {
+
+}
+var deep = curry( function ( transformer, obj ) {
+    if ( transformerIsInCorrectFormat( transformer ) && dataIsInCorrectFormat( obj ) ) {
+        if ( module.exports.hasDeepTransform( transformer ) ) {
+            return module.exports.deepTransform( transformer, obj );
+        } else {
+            return module.exports.transform( transformer, obj );
+        }
+    }
+    return {};
 } );
 
 module.exports = deep;
