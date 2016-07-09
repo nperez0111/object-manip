@@ -441,7 +441,7 @@ var d = {
                 return valueOf( obj[ prop ], func );
 
             } else {
-
+                //figure out a way to remove the obj key so we dont have a loose function lying around
                 return func;
 
             }
@@ -492,7 +492,7 @@ function transformerTypesInCorrect( transformer ) {
 
     return module.exports.traverse( transformer, function ( val ) {
         return val;
-    } ).some(function( val ) {
+    } ).some( function ( val ) {
         if ( isString( val ) ) {
             return false;
         }
@@ -501,15 +501,15 @@ function transformerTypesInCorrect( transformer ) {
                 return false;
             }
             if ( isArray( val ) && val.length == 2 ) {
-                return !(isString( val[ 0 ] ) && isFunc( val[ 1 ] ));
+                return !( isString( val[ 0 ] ) && isFunc( val[ 1 ] ) );
             }
             return true;
         }
-        if(isFunc(val)){
+        if ( isFunc( val ) ) {
             return false;
         }
-        if(isObj(val)){
-            return transformerTypesInCorrect(val);
+        if ( isObj( val ) ) {
+            return transformerTypesInCorrect( val );
         }
         return true;
     } );
@@ -525,15 +525,32 @@ function transformerIsInCorrectFormat( transformer ) {
     return true;
 }
 
+function onlyPropertiesThatCorrespondBetween( obj, transformer ) {
+    var tKeys = Object.keys( transformer ).filter( function ( cur ) {
+        return hasOwnProp( obj, cur );
+    } );
+
+    return createObj( tKeys, tKeys.map( function ( key ) {
+        var val = transformer[ key ];
+        if ( isObj( val ) ) {
+            return onlyPropertiesThatCorrespondBetween( obj[ key ], val );
+        }
+        return val;
+    } ) );
+}
+
 function dataIsInCorrectFormat( data ) {
+    if ( checkIfIsCircular( data ) ) {
+        return false;
+    }
     return true;
 }
 var deep = curry( function ( transformer, obj ) {
     if ( transformerIsInCorrectFormat( transformer ) && dataIsInCorrectFormat( obj ) ) {
         if ( module.exports.hasDeepTransform( transformer ) ) {
-            return module.exports.deepTransform( transformer, obj );
+            return module.exports.deepTransform( onlyPropertiesThatCorrespondBetween( obj, transformer ), obj );
         } else {
-            return module.exports.transform( transformer, obj );
+            return module.exports.transform( onlyPropertiesThatCorrespondBetween( obj, transformer ), obj );
         }
     }
     return {};

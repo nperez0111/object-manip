@@ -439,6 +439,15 @@ assert( man.transform( {
     a: 15
 } );
 
+assert(man( {
+    a: function ( d ) {
+        return d;
+    },
+    e:function(a){return a}
+}, {
+    e: 3
+} ),{e:3})
+
 console.timeEnd( 'Test took' );
 
 function log( a ) {
