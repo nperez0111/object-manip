@@ -480,7 +480,7 @@ var d = {
 }
 
 function checkIfIsCircular( obj ) {
-    if ( isObj( transformer ) && isCircular( transformer ) ) {
+    if ( isObj( obj ) && isCircular( obj ) ) {
         //just a check as this is a recursive method
         console.warn( 'Circular reference found and is unsupported. exiting...' );
         return true;
@@ -489,34 +489,44 @@ function checkIfIsCircular( obj ) {
 }
 
 function transformerTypesInCorrect( transformer ) {
+
     return module.exports.traverse( transformer, function ( val ) {
+        return val;
+    } ).some(function( val ) {
         if ( isString( val ) ) {
-            return true;
+            return false;
         }
         if ( isArray( val ) ) {
             if ( isString( val[ 0 ] ) ) {
-                return true;
+                return false;
             }
             if ( isArray( val ) && val.length == 2 ) {
-                return isString( val[ 0 ] ) && isfunction( val[ 1 ] );
+                return !(isString( val[ 0 ] ) && isFunc( val[ 1 ] ));
             }
-            return false;
-
+            return true;
         }
+        if(isFunc(val)){
+            return false;
+        }
+        if(isObj(val)){
+            return transformerTypesInCorrect(val);
+        }
+        return true;
     } );
 }
 
 function transformerIsInCorrectFormat( transformer ) {
-    if ( checkIfIsCircular( obj ) ) {
+    if ( checkIfIsCircular( transformer ) ) {
         return false;
     }
     if ( transformerTypesInCorrect( transformer ) ) {
         return false;
     }
+    return true;
 }
 
 function dataIsInCorrectFormat( data ) {
-
+    return true;
 }
 var deep = curry( function ( transformer, obj ) {
     if ( transformerIsInCorrectFormat( transformer ) && dataIsInCorrectFormat( obj ) ) {
