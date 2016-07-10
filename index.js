@@ -490,9 +490,9 @@ function checkIfIsCircular( obj ) {
 
 function transformerTypesInCorrect( transformer ) {
 
-    return module.exports.traverse( transformer, function ( val, index, key ) {
+    return module.exports.traverse( transformer, function ( val) {
         return val;
-    } ).some( function ( val ) {
+    } ).some( function ( val,index,key ) {
         if ( isString( val ) ) {
             return false;
         }
@@ -501,7 +501,9 @@ function transformerTypesInCorrect( transformer ) {
                 return false;
             }
             if ( isArray( val ) && val.length == 2 ) {
-                return !( isString( val[ 0 ] ) && isFunc( val[ 1 ] ) );
+                if( isString( val[ 0 ] ) && isFunc( val[ 1 ] ) ){
+                    return false;
+                }
             }
             console.warn( "Transformer's key:'" + key + "' is not specified properly, must be in the format [String Relocator, Transform Function]. You Specified:" + JSON.stringify( val ) );
             return true;
