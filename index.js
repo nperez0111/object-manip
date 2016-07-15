@@ -2,7 +2,7 @@ var isString = require( 'validate.io-string' ),
     curry = require( 'curry' ),
     isFunc = require( 'isfunction' ),
     isObj = require( 'isobject' ),
-    isArray = require( 'isArray' ),
+    isArray = require( 'isarray' ),
     hasOwnProp = require( 'has-own-prop' ),
     flag = false,
     needsToBeSetBack = false,
@@ -490,9 +490,9 @@ function checkIfIsCircular( obj ) {
 
 function transformerTypesInCorrect( transformer ) {
 
-    return module.exports.traverse( transformer, function ( val) {
+    return module.exports.traverse( transformer, function ( val ) {
         return val;
-    } ).some( function ( val,index,key ) {
+    } ).some( function ( val, index, key ) {
         if ( isString( val ) ) {
             return false;
         }
@@ -501,7 +501,7 @@ function transformerTypesInCorrect( transformer ) {
                 return false;
             }
             if ( isArray( val ) && val.length == 2 ) {
-                if( isString( val[ 0 ] ) && isFunc( val[ 1 ] ) ){
+                if ( isString( val[ 0 ] ) && isFunc( val[ 1 ] ) ) {
                     return false;
                 }
             }
