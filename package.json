@@ -1,6 +1,6 @@
 {
     "name": "object-manip",
-    "version": "1.2.2",
+    "version": "1.2.3",
     "description": "Uses a transform object to create a new object",
     "main": "index.js",
     "scripts": {
