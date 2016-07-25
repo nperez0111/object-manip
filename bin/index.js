@@ -6,15 +6,8 @@ var _typeCheck = require('./lib/typeCheck');
 
 var _logic = require('./lib/logic');
 
-var isString = require('validate.io-string'),
-    curry = require('curry'),
-    isFunc = require('isfunction'),
-    isObj = require('isobject'),
-    isArray = require('isarray'),
-    hasOwnProp = require('has-own-prop'),
-    isStringOrArr = function isStringOrArr(a) {
-    return isString(a) || isArray(a);
-};
+var _deps = require('./lib/deps');
+
 var needsToBeSetBack = false,
     flag = false;
 
@@ -44,7 +37,7 @@ function replaceValues(obj, actual, callback) {
         edits.forEach(function (cur) {
             var str = cur[0],
                 func = false;
-            if (isArray(cur[0])) {
+            if ((0, _deps.isArray)(cur[0])) {
                 str = cur[0][0];
                 func = cur[0][1];
             }
@@ -77,7 +70,7 @@ function replaceValues(obj, actual, callback) {
     }
 
     keys.forEach(function (cur, i) {
-        if (isObj(values[i])) {
+        if ((0, _deps.isObj)(values[i])) {
             if (Object.keys(values[i]).length == 0) {
                 return;
             }
@@ -104,11 +97,11 @@ var d = {
 
         return values.some(function (cur) {
 
-            if (isStringOrArr(cur)) {
+            if ((0, _deps.isStringOrArr)(cur)) {
 
-                var s = isArray(cur) ? cur[0] : cur;
+                var s = (0, _deps.isArray)(cur) ? cur[0] : cur;
                 return (0, _utils.levelOfTransform)(s) > 1;
-            } else if (isDeep && isObj(cur)) {
+            } else if (isDeep && (0, _deps.isObj)(cur)) {
 
                 return module.exports.hasDeepTransform(cur);
             } else {
@@ -121,10 +114,10 @@ var d = {
 
         var passesTest = function passesTest(value) {
 
-            if (!isObj(value)) {
+            if (!(0, _deps.isObj)(value)) {
 
-                if (isStringOrArr(value)) {
-                    var s = isArray(value) ? value[0] : value;
+                if ((0, _deps.isStringOrArr)(value)) {
+                    var s = (0, _deps.isArray)(value) ? value[0] : value;
                     return (0, _utils.levelOfTransform)(s) < 2;
                 }
 
@@ -136,7 +129,7 @@ var d = {
         return (0, _utils.traverse)(transformer, function (value, i, key) {
             if (passesTest(value)) {
 
-                if (!isObj(value)) {
+                if (!(0, _deps.isObj)(value)) {
 
                     return (0, _utils.createObj)(key, value);
                 }
@@ -161,7 +154,7 @@ var d = {
             var key = cur[1][0],
                 val = cur[1][1];
 
-            if (isObj(val)) {
+            if ((0, _deps.isObj)(val)) {
 
                 val = (0, _utils.reducer)(module.exports.findDeepTransforms(val));
             }
@@ -175,12 +168,12 @@ var d = {
 
             var val = null;
 
-            if (isStringOrArr(value)) {
+            if ((0, _deps.isStringOrArr)(value)) {
 
-                var s = isArray(value) ? value[0] : value;
+                var s = (0, _deps.isArray)(value) ? value[0] : value;
                 val = s.slice((0, _utils.levelOfTransform)(s) * 2);
 
-                if (isArray(value)) {
+                if ((0, _deps.isArray)(value)) {
                     val = [val, value[1]];
                 }
             } else {
@@ -197,9 +190,9 @@ var d = {
 
             var val = null;
 
-            if (isStringOrArr(value)) {
+            if ((0, _deps.isStringOrArr)(value)) {
 
-                var s = isArray(value) ? value[0] : value,
+                var s = (0, _deps.isArray)(value) ? value[0] : value,
                     num = (0, _utils.levelOfTransform)(s);
                 val = [s.slice(num * 2), num];
             } else {
@@ -235,7 +228,7 @@ var d = {
 
         return Object.assign(yay, finallyMovedBack);
     },
-    transform: curry(function (transformer, obj) {
+    transform: (0, _deps.curry)(function (transformer, obj) {
 
         var settings = module.exports.settings;
 
@@ -247,31 +240,31 @@ var d = {
         }
 
         var ret = replaceValues(transformer, obj, module.exports.callback);
-        if (isArray(ret)) {
+        if ((0, _deps.isArray)(ret)) {
             return ret[1][0][0];
         }
         return ret;
     }),
     callback: function callback(func, prop, obj) {
 
-        if (isStringOrArr(func)) {
+        if ((0, _deps.isStringOrArr)(func)) {
 
             flag = func;
 
             return obj[prop];
-        } else if (isFunc(func)) {
+        } else if ((0, _deps.isFunc)(func)) {
 
-            if (hasOwnProp(obj, prop)) {
+            if ((0, _deps.hasOwnProp)(obj, prop)) {
 
                 return (0, _utils.valueOf)(obj[prop], func, module.exports.settings.thisArg);
             } else {
                 //figure out a way to remove the obj key so we dont have a loose function lying around
                 return func;
             }
-        } else if (isObj(func) && isObj(obj)) {
+        } else if ((0, _deps.isObj)(func) && (0, _deps.isObj)(obj)) {
 
             var objPostTransform = replaceValues(func, obj[prop], module.exports.callback);
-            if (isArray(objPostTransform)) {
+            if ((0, _deps.isArray)(objPostTransform)) {
                 //is in format[object itself, objects to be sent up a level]
                 needsToBeSetBack = objPostTransform[1].map(function (wentBack) {
                     return wentBack[0];
@@ -299,7 +292,7 @@ var d = {
     }
 };
 
-var deep = curry(function (transformer, obj) {
+var deep = (0, _deps.curry)(function (transformer, obj) {
     if ((0, _typeCheck.transformerIsInCorrectFormat)(transformer) && (0, _typeCheck.dataIsInCorrectFormat)(obj)) {
         if (module.exports.hasDeepTransform(transformer)) {
             return module.exports.deepTransform((0, _typeCheck.onlyPropertiesThatCorrespondBetween)(obj, transformer), obj);
@@ -325,7 +318,7 @@ function log(a) {
     console.log(a);
     return a;
 }
-var lo = curry(function (a, b) {
+var lo = (0, _deps.curry)(function (a, b) {
     log(a);
     log(b);
     log('end ' + a);

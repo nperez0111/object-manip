@@ -1,4 +1,6 @@
-const isArray = require( 'isarray' );
+import {
+    isArray
+} from './deps';
 
 export function createObj( keys, values ) {
     var ret = {};

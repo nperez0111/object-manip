@@ -5,15 +5,15 @@ import {
     createObj
 } from './utils';
 
-const isString = require( 'validate.io-string' ),
-    curry = require( 'curry' ),
-    isFunc = require( 'isfunction' ),
-    isObj = require( 'isobject' ),
-    isArray = require( 'isarray' ),
-    hasOwnProp = require( 'has-own-prop' ),
-    isStringOrArr = function ( a ) {
-        return isString( a ) || isArray( a );
-    };
+import {
+    isString,
+    curry,
+    isFunc,
+    isArray,
+    hasOwnProp,
+    isStringOrArr,
+    isObj
+} from './deps';
 
 export function actualCopy( placement, valueObj ) {
     let get = ( str, obj ) => {

@@ -8,15 +8,7 @@ exports.parseRelocator = parseRelocator;
 
 var _utils = require('./utils');
 
-var isString = require('validate.io-string'),
-    curry = require('curry'),
-    isFunc = require('isfunction'),
-    isObj = require('isobject'),
-    isArray = require('isarray'),
-    hasOwnProp = require('has-own-prop'),
-    isStringOrArr = function isStringOrArr(a) {
-    return isString(a) || isArray(a);
-};
+var _deps = require('./deps');
 
 function actualCopy(placement, valueObj) {
     var get = function get(str, obj) {
@@ -28,7 +20,7 @@ function actualCopy(placement, valueObj) {
         }, []),
             ret = obj;
 
-        if (!isObj(obj)) {
+        if (!(0, _deps.isObj)(obj)) {
             //if something passed in the second arg return the array they want.
             return arr;
         }

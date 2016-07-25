@@ -9,11 +9,12 @@ exports.reducer = reducer;
 exports.levelOfTransform = levelOfTransform;
 exports.traverse = traverse;
 exports.valueOf = valueOf;
-var isArray = require('isarray');
+
+var _deps = require('./deps');
 
 function createObj(keys, values) {
     var ret = {};
-    if (isArray(keys) && isArray(values)) {
+    if ((0, _deps.isArray)(keys) && (0, _deps.isArray)(values)) {
         keys.forEach(function (cur, i) {
             ret[cur] = values[i];
         });
@@ -40,7 +41,7 @@ function reducer(val) {
 
     return val.reduce(function (acc, obj) {
 
-        if (isArray(obj)) {
+        if ((0, _deps.isArray)(obj)) {
 
             return Object.assign({}, acc, reducer(obj));
         }
@@ -81,7 +82,7 @@ function traverse(objecto, funct, shouldReduce, useKeys) {
 }
 
 function valueOf(val, func, thisArg) {
-    if (isArray(val)) {
+    if ((0, _deps.isArray)(val)) {
 
         return val.map(function (currentValue, index, arr) {
             return func.call(thisArg, currentValue, index, arr);

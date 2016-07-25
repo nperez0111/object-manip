@@ -19,15 +19,16 @@ import {
     parseRelocator
 } from './lib/logic'
 
-const isString = require( 'validate.io-string' ),
-    curry = require( 'curry' ),
-    isFunc = require( 'isfunction' ),
-    isObj = require( 'isobject' ),
-    isArray = require( 'isarray' ),
-    hasOwnProp = require( 'has-own-prop' ),
-    isStringOrArr = function ( a ) {
-        return isString( a ) || isArray( a );
-    };
+import {
+    isString,
+    curry,
+    isFunc,
+    isArray,
+    hasOwnProp,
+    isStringOrArr,
+    isObj
+} from './lib/deps';
+
 let needsToBeSetBack = false,
     flag = false;
 
