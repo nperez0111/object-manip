@@ -47,10 +47,7 @@ function transformerTypesInCorrect(transformer) {
 }
 
 function transformerIsInCorrectFormat(transformer) {
-    if (checkIfIsCircular(transformer)) {
-        return false;
-    }
-    if (transformerTypesInCorrect(transformer)) {
+    if (checkIfIsCircular(transformer) || transformerTypesInCorrect(transformer)) {
         return false;
     }
     return true;
