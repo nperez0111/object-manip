@@ -1,4 +1,4 @@
-var man = require( './../index.js' );
+var man = require( './../bin/index.js' );
 var equal = require( 'deep-equal' );
 console.time( 'Test took' );
 console.assert( equal( man.transform( {
@@ -439,14 +439,18 @@ assert( man.transform( {
     a: 15
 } );
 
-assert(man( {
+assert( man( {
     a: function ( d ) {
         return d;
     },
-    e:function(a){return a}
+    e: function ( a ) {
+        return a
+    }
 }, {
     e: 3
-} ),{e:3})
+} ), {
+    e: 3
+} )
 
 console.timeEnd( 'Test took' );
 

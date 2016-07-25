@@ -1,24 +1,38 @@
-var isString = require( 'validate.io-string' ),
+import {
+    reducer,
+    createObj,
+    makeObj,
+    levelOfTransform,
+    traverse
+} from './lib/utils';
+
+import {
+    onlyPropertiesThatCorrespondBetween,
+    dataIsInCorrectFormat,
+    transformerIsInCorrectFormat,
+    transformerTypesInCorrect
+} from './lib/typeCheck';
+
+const isString = require( 'validate.io-string' ),
     curry = require( 'curry' ),
     isFunc = require( 'isfunction' ),
     isObj = require( 'isobject' ),
     isArray = require( 'isarray' ),
     hasOwnProp = require( 'has-own-prop' ),
-    flag = false,
-    needsToBeSetBack = false,
-    isCircular = require( 'is-circular' ),
     isStringOrArr = function ( a ) {
         return isString( a ) || isArray( a );
     };
+let needsToBeSetBack = false,
+    flag = false;
 
 function replaceValues( obj, actual, callback ) {
-    var keys = Object.keys( obj ),
+    let keys = Object.keys( obj ),
         edits = [],
         setBack = [],
         add = [],
         values = keys.map( function ( key, i ) {
 
-            var val = callback( obj[ key ], key, actual );
+            const val = callback( obj[ key ], key, actual );
 
             if ( flag !== false ) {
                 edits.push( [ flag, i ] );
@@ -35,7 +49,7 @@ function replaceValues( obj, actual, callback ) {
     if ( edits.length ) {
 
         edits.forEach( function ( cur ) {
-            var str = cur[ 0 ],
+            let str = cur[ 0 ],
                 func = false;
             if ( isArray( cur[ 0 ] ) ) {
                 str = cur[ 0 ][ 0 ];
@@ -43,7 +57,7 @@ function replaceValues( obj, actual, callback ) {
             }
             //log( 'preparse' )
 
-            var postParse = parseRelocator( str, cur[ 1 ], keys, values, func );
+            let postParse = parseRelocator( str, cur[ 1 ], keys, values, func );
             keys = postParse[ 0 ];
             values = postParse[ 1 ];
 
@@ -91,13 +105,13 @@ function replaceValues( obj, actual, callback ) {
 }
 
 function parseRelocator( str, cur, keys, values, func ) {
-    var back = false;
+    let back = false;
     if ( str.charAt( 0 ) == '.' && str.charAt( 1 ) == '/' ) {
         str = str.slice( 2 );
         back = true;
     }
 
-    var props = str.split( '.' ),
+    let props = str.split( '.' ),
         value = func ? valueOf( values[ cur ], func ) : values[ cur ];
 
     if ( back == false ) {
@@ -110,12 +124,13 @@ function parseRelocator( str, cur, keys, values, func ) {
 
     keys.splice( cur, 1 );
     values.splice( cur, 1 );
-    var obj = props.length == 1 ? createObj( str, value ) : makeObj( value, props );
+    let obj = props.length == 1 ? createObj( str, value ) : makeObj( value, props );
     return [ keys, values, [ obj, props[ 0 ] ] ];
 
     /*returns in format [keys,values,[optional val to set]]*/
 
 }
+
 
 function valueOf( val, func ) {
     if ( isArray( val ) ) {
@@ -130,63 +145,14 @@ function valueOf( val, func ) {
     return func.call( module.exports.settings.thisArg, val );
 }
 
-function createObj( keys, values ) {
-    var ret = {};
-    if ( isArray( keys ) && isArray( values ) ) {
-        keys.forEach( function ( cur, i ) {
-            ret[ cur ] = values[ i ];
-        } );
-
-    } else {
-        ret[ keys ] = values;
-    }
-    return ret;
-}
-
-// makeOBj(123,[a,b,c])=={a:{b:{c:123}}}
-function makeObj( val, props ) {
-    var obj = {};
-    props.reverse();
-    obj[ props.shift() ] = val;
-    props.forEach( function ( cur ) {
-        var ret = {};
-        ret[ cur ] = obj;
-        obj = ret;
-    } );
-    return obj;
-}
-
-function reducer( val ) {
-
-    return val.reduce( function ( acc, obj ) {
-
-        if ( isArray( obj ) ) {
-
-            return Object.assign( {}, acc, reducer( obj ) );
-
-        }
-
-        return Object.assign( {}, acc, obj );
-
-    }, {} );
-};
-
-function levelOfTransform( str, num ) {
-    var arr = Array.from( str );
-    if ( arr.shift() == '.' && arr.shift() == '/' ) {
-        return levelOfTransform( arr.join( '' ), ( num || 0 ) + 1 );
-    }
-    return num || 0;
-}
 
 
-
-var d = {
+let d = {
     hasDeepTransform: function ( transformer, isDeep ) {
 
         isDeep = isDeep == undefined ? true : isDeep;
 
-        var keys = Object.keys( transformer ),
+        let keys = Object.keys( transformer ),
             values = keys.map( function ( cur ) {
                 return transformer[ cur ];
             } );
@@ -197,7 +163,7 @@ var d = {
 
             if ( isStringOrArr( cur ) ) {
 
-                var s = isArray( cur ) ? cur[ 0 ] : cur;
+                let s = isArray( cur ) ? cur[ 0 ] : cur;
                 return levelOfTransform( s ) > 1;
 
             } else if ( isDeep && isObj( cur ) ) {
@@ -213,12 +179,12 @@ var d = {
     },
     findDeepNonTransforms: function ( transformer ) {
 
-        var passesTest = function ( value ) {
+        let passesTest = function ( value ) {
 
             if ( !isObj( value ) ) {
 
                 if ( isStringOrArr( value ) ) {
-                    var s = isArray( value ) ? value[ 0 ] : value;
+                    let s = isArray( value ) ? value[ 0 ] : value;
                     return levelOfTransform( s ) < 2;
 
                 }
@@ -230,7 +196,7 @@ var d = {
             return module.exports.findDeepNonTransforms( value ).length !== 0;
 
         };
-        return module.exports.traverse( transformer, function ( value, i, key ) {
+        return traverse( transformer, function ( value, i, key ) {
             if ( passesTest( value ) ) {
 
                 if ( !isObj( value ) ) {
@@ -251,7 +217,7 @@ var d = {
     findDeepTransforms: function ( transformer, notTransforms ) {
         notTransforms = notTransforms === undefined ? true : notTransforms;
 
-        return module.exports.traverse( transformer, function ( cur, i, value ) {
+        return traverse( transformer, function ( cur, i, value ) {
             //[boolean checking if immediate values in the object have deeptransforms needed, index]
             return [ module.exports.hasDeepTransform( createObj( cur, value ), true ) === notTransforms, [ cur, value ] ];
 
@@ -259,7 +225,7 @@ var d = {
             return a[ 0 ];
 
         } ).map( function ( cur ) {
-            var key = cur[ 1 ][ 0 ],
+            let key = cur[ 1 ][ 0 ],
                 val = cur[ 1 ][ 1 ];
 
             if ( isObj( val ) ) {
@@ -273,40 +239,15 @@ var d = {
         } );
 
     },
-    traverse: function ( objecto, funct, shouldReduce, useKeys ) {
-        var keys = Object.keys( objecto ),
-            values = keys.map( function ( cur ) {
-                return objecto[ cur ];
-            } );
-        if ( useKeys ) {
-            var temp = values;
-            values = keys;
-            keys = temp;
-            temp = null;
-        }
-        mapper = values.map( function ( val, index ) {
-
-            return funct( val, index, keys[ index ] );
-
-        } );
-
-        if ( shouldReduce ) {
-
-            mapper = reducer( mapper );
-
-        }
-
-        return mapper;
-    },
     postTransform: function ( transformer ) {
 
-        return ( module.exports.traverse( transformer, function ( value, i, key ) {
+        return ( traverse( transformer, function ( value, i, key ) {
 
-            var val = null;
+            let val = null;
 
             if ( isStringOrArr( value ) ) {
 
-                var s = isArray( value ) ? value[ 0 ] : value;
+                let s = isArray( value ) ? value[ 0 ] : value;
                 val = s.slice( levelOfTransform( s ) * 2 );
 
                 if ( isArray( value ) ) {
@@ -325,13 +266,13 @@ var d = {
     },
     deepTraversal: function ( original ) {
 
-        return ( module.exports.traverse( original, function ( value, i, key ) {
+        return ( traverse( original, function ( value, i, key ) {
 
-            var val = null;
+            let val = null;
 
             if ( isStringOrArr( value ) ) {
 
-                var s = isArray( value ) ? value[ 0 ] : value,
+                let s = isArray( value ) ? value[ 0 ] : value,
                     num = levelOfTransform( s );
                 val = [ ( s.slice( num * 2 ) ), num ];
 
@@ -349,7 +290,7 @@ var d = {
     },
     get: function ( str, obj ) {
 
-        var arr = ( ( str.split( ',' ) ).map( function ( cur ) {
+        let arr = ( ( str.split( ',' ) ).map( function ( cur ) {
 
                 return cur.split( '.' );
 
@@ -377,30 +318,30 @@ var d = {
     },
     actualCopy: function ( placement, valueObj ) {
         return reducer( placement.map( function ( cur ) {
-            var cal = module.exports.get( cur[ 0 ] );
+            let cal = module.exports.get( cur[ 0 ] );
             //fix bug where splitting via , shoul be handled seperate from .
             return makeObj( module.exports.get( cur[ 0 ], valueObj ), cal.slice( cal.length - 1 < cur[ 1 ] ? 0 : cur[ 1 ] ) );
         } ) );
     },
     deepTransform: function ( transformer, obj ) {
-        var settings = module.exports.settings;
+        let settings = module.exports.settings;
 
         if ( settings.reverse ) {
-            var temp = obj;
+            let temp = obj;
             obj = transformer;
             transformer = temp;
             temp = null;
         }
 
-        var workNeeded = ( reducer( module.exports.findDeepTransforms( transformer ) ) );
-        var easy = ( reducer( module.exports.findDeepNonTransforms( transformer ) ) );
-        var yay = module.exports.transform( easy, obj );
+        let workNeeded = ( reducer( module.exports.findDeepTransforms( transformer ) ) );
+        let easy = ( reducer( module.exports.findDeepNonTransforms( transformer ) ) );
+        let yay = module.exports.transform( easy, obj );
 
-        var transformed = module.exports.transform( module.exports.postTransform( workNeeded ), obj );
-        var keysToVal = ( module.exports.deepTraversal( workNeeded ) );
+        let transformed = module.exports.transform( module.exports.postTransform( workNeeded ), obj );
+        let keysToVal = ( module.exports.deepTraversal( workNeeded ) );
         /*lo( 'keysToVal', keysToVal )
         lo( 'transformed', transformed )*/
-        var finallyMovedBack = ( module.exports.actualCopy( keysToVal, transformed ) );
+        let finallyMovedBack = ( module.exports.actualCopy( keysToVal, transformed ) );
         /*log( 'eas' );
         log( workNeeded );*/
 
@@ -410,16 +351,16 @@ var d = {
     },
     transform: curry( function ( transformer, obj ) {
 
-        var settings = module.exports.settings;
+        let settings = module.exports.settings;
 
         if ( settings.reverse ) {
-            var temp = obj;
+            let temp = obj;
             obj = transformer;
             transformer = temp;
             temp = null;
         }
 
-        var ret = replaceValues( transformer, obj, module.exports.callback );
+        let ret = replaceValues( transformer, obj, module.exports.callback );
         if ( isArray( ret ) ) {
             return ret[ 1 ][ 0 ][ 0 ];
         }
@@ -448,7 +389,7 @@ var d = {
 
         } else if ( isObj( func ) && isObj( obj ) ) {
 
-            var objPostTransform = ( replaceValues( func, obj[ prop ], module.exports.callback ) );
+            let objPostTransform = ( replaceValues( func, obj[ prop ], module.exports.callback ) );
             if ( isArray( objPostTransform ) ) {
                 //is in format[object itself, objects to be sent up a level]
                 needsToBeSetBack = objPostTransform[ 1 ].map( function ( wentBack ) {
@@ -479,77 +420,7 @@ var d = {
     }
 }
 
-function checkIfIsCircular( obj ) {
-    if ( isObj( obj ) && isCircular( obj ) ) {
-        //just a check as this is a recursive method
-        console.warn( 'Circular reference found and is unsupported. exiting...' );
-        return true;
-    }
-    return false;
-}
-
-function transformerTypesInCorrect( transformer ) {
-
-    return module.exports.traverse( transformer, function ( val ) {
-        return val;
-    } ).some( function ( val, index, key ) {
-        if ( isString( val ) ) {
-            return false;
-        }
-        if ( isArray( val ) ) {
-            if ( isString( val[ 0 ] ) ) {
-                return false;
-            }
-            if ( isArray( val ) && val.length == 2 ) {
-                if ( isString( val[ 0 ] ) && isFunc( val[ 1 ] ) ) {
-                    return false;
-                }
-            }
-            console.warn( "Transformer's key:'" + key + "' is not specified properly, must be in the format [String Relocator, Transform Function]. You Specified:" + JSON.stringify( val ) );
-            return true;
-        }
-        if ( isFunc( val ) ) {
-            return false;
-        }
-        if ( isObj( val ) ) {
-            return transformerTypesInCorrect( val );
-        }
-        console.warn( "You specified a type that is not associated with a transformer object. You entered: '" + val + "' with a type of: '" + ( typeof val ) + "' on key:'" + key + "'" );
-        return true;
-    } );
-}
-
-function transformerIsInCorrectFormat( transformer ) {
-    if ( checkIfIsCircular( transformer ) ) {
-        return false;
-    }
-    if ( transformerTypesInCorrect( transformer ) ) {
-        return false;
-    }
-    return true;
-}
-
-function onlyPropertiesThatCorrespondBetween( obj, transformer ) {
-    var tKeys = Object.keys( transformer ).filter( function ( cur ) {
-        return hasOwnProp( obj, cur );
-    } );
-
-    return createObj( tKeys, tKeys.map( function ( key ) {
-        var val = transformer[ key ];
-        if ( isObj( val ) ) {
-            return onlyPropertiesThatCorrespondBetween( obj[ key ], val );
-        }
-        return val;
-    } ) );
-}
-
-function dataIsInCorrectFormat( data ) {
-    if ( checkIfIsCircular( data ) ) {
-        return false;
-    }
-    return true;
-}
-var deep = curry( function ( transformer, obj ) {
+let deep = curry( function ( transformer, obj ) {
     if ( transformerIsInCorrectFormat( transformer ) && dataIsInCorrectFormat( obj ) ) {
         if ( module.exports.hasDeepTransform( transformer ) ) {
             return module.exports.deepTransform( onlyPropertiesThatCorrespondBetween( obj, transformer ), obj );
@@ -575,7 +446,7 @@ function log( a ) {
     console.log( a );
     return a;
 }
-var lo = curry( function ( a, b ) {
+let lo = curry( function ( a, b ) {
     log( a );
     log( b );
     log( 'end ' + a );
