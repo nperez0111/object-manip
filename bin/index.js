@@ -4,6 +4,8 @@ var _utils = require('./lib/utils');
 
 var _typeCheck = require('./lib/typeCheck');
 
+var _logic = require('./lib/logic');
+
 var isString = require('validate.io-string'),
     curry = require('curry'),
     isFunc = require('isfunction'),
@@ -48,7 +50,7 @@ function replaceValues(obj, actual, callback) {
             }
             //log( 'preparse' )
 
-            var postParse = parseRelocator(str, cur[1], keys, values, func);
+            var postParse = (0, _logic.parseRelocator)(str, cur[1], keys, values, func, module.exports.settings.thisArg);
             keys = postParse[0];
             values = postParse[1];
 
@@ -88,31 +90,6 @@ function replaceValues(obj, actual, callback) {
     }
 
     return ret;
-}
-
-function parseRelocator(str, cur, keys, values, func) {
-    var back = false;
-    if (str.charAt(0) == '.' && str.charAt(1) == '/') {
-        str = str.slice(2);
-        back = true;
-    }
-
-    var props = str.split('.'),
-        value = func ? (0, _utils.valueOf)(values[cur], func, module.exports.settings.thisArg) : values[cur];
-
-    if (back == false) {
-
-        keys[cur] = props.shift();
-        values[cur] = props.length == 0 ? value : (0, _utils.makeObj)(value, props);
-        return [keys, values];
-    }
-
-    keys.splice(cur, 1);
-    values.splice(cur, 1);
-    var obj = props.length == 1 ? (0, _utils.createObj)(str, value) : (0, _utils.makeObj)(value, props);
-    return [keys, values, [obj, props[0]]];
-
-    /*returns in format [keys,values,[optional val to set]]*/
 }
 
 var d = {
@@ -234,36 +211,6 @@ var d = {
             return val;
         });
     },
-    get: function get(str, obj) {
-
-        var arr = str.split(',').map(function (cur) {
-
-            return cur.split('.');
-        }).reduce(function (a, b) {
-
-            return a.concat(b);
-        }, []),
-            ret = obj;
-
-        if (!isObj(obj)) {
-            //if something passed in the second arg return the array they want.
-            return arr;
-        }
-
-        arr.forEach(function (cur) {
-
-            ret = ret[cur];
-        });
-
-        return ret;
-    },
-    actualCopy: function actualCopy(placement, valueObj) {
-        return (0, _utils.reducer)(placement.map(function (cur) {
-            var cal = module.exports.get(cur[0]);
-            //fix bug where splitting via , shoul be handled seperate from .
-            return (0, _utils.makeObj)(module.exports.get(cur[0], valueObj), cal.slice(cal.length - 1 < cur[1] ? 0 : cur[1]));
-        }));
-    },
     deepTransform: function deepTransform(transformer, obj) {
         var settings = module.exports.settings;
 
@@ -282,7 +229,7 @@ var d = {
         var keysToVal = module.exports.deepTraversal(workNeeded);
         /*lo( 'keysToVal', keysToVal )
         lo( 'transformed', transformed )*/
-        var finallyMovedBack = module.exports.actualCopy(keysToVal, transformed);
+        var finallyMovedBack = (0, _logic.actualCopy)(keysToVal, transformed);
         /*log( 'eas' );
         log( workNeeded );*/
 

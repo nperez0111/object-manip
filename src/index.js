@@ -14,6 +14,11 @@ import {
     transformerTypesInCorrect
 } from './lib/typeCheck';
 
+import {
+    actualCopy,
+    parseRelocator
+} from './lib/logic'
+
 const isString = require( 'validate.io-string' ),
     curry = require( 'curry' ),
     isFunc = require( 'isfunction' ),
@@ -58,7 +63,7 @@ function replaceValues( obj, actual, callback ) {
             }
             //log( 'preparse' )
 
-            let postParse = parseRelocator( str, cur[ 1 ], keys, values, func );
+            let postParse = parseRelocator( str, cur[ 1 ], keys, values, func, module.exports.settings.thisArg );
             keys = postParse[ 0 ];
             values = postParse[ 1 ];
 
@@ -105,32 +110,7 @@ function replaceValues( obj, actual, callback ) {
     return ret;
 }
 
-function parseRelocator( str, cur, keys, values, func ) {
-    let back = false;
-    if ( str.charAt( 0 ) == '.' && str.charAt( 1 ) == '/' ) {
-        str = str.slice( 2 );
-        back = true;
-    }
 
-    let props = str.split( '.' ),
-        value = func ? valueOf( values[ cur ], func, module.exports.settings.thisArg ) : values[ cur ];
-
-    if ( back == false ) {
-
-        keys[ cur ] = props.shift();
-        values[ cur ] = props.length == 0 ? value : makeObj( value, props );
-        return [ keys, values ];
-
-    }
-
-    keys.splice( cur, 1 );
-    values.splice( cur, 1 );
-    let obj = props.length == 1 ? createObj( str, value ) : makeObj( value, props );
-    return [ keys, values, [ obj, props[ 0 ] ] ];
-
-    /*returns in format [keys,values,[optional val to set]]*/
-
-}
 
 
 
@@ -275,41 +255,6 @@ let d = {
         } ) );
 
     },
-    get: function ( str, obj ) {
-
-        let arr = ( ( str.split( ',' ) ).map( function ( cur ) {
-
-                return cur.split( '.' );
-
-            } ).reduce( function ( a, b ) {
-
-                return a.concat( b );
-
-            }, [] ) ),
-            ret = obj;
-
-        if ( !isObj( obj ) ) {
-            //if something passed in the second arg return the array they want.
-            return arr;
-
-        }
-
-        arr.forEach( function ( cur ) {
-
-            ret = ret[ cur ];
-
-        } );
-
-        return ret;
-
-    },
-    actualCopy: function ( placement, valueObj ) {
-        return reducer( placement.map( function ( cur ) {
-            let cal = module.exports.get( cur[ 0 ] );
-            //fix bug where splitting via , shoul be handled seperate from .
-            return makeObj( module.exports.get( cur[ 0 ], valueObj ), cal.slice( cal.length - 1 < cur[ 1 ] ? 0 : cur[ 1 ] ) );
-        } ) );
-    },
     deepTransform: function ( transformer, obj ) {
         let settings = module.exports.settings;
 
@@ -328,7 +273,7 @@ let d = {
         let keysToVal = ( module.exports.deepTraversal( workNeeded ) );
         /*lo( 'keysToVal', keysToVal )
         lo( 'transformed', transformed )*/
-        let finallyMovedBack = ( module.exports.actualCopy( keysToVal, transformed ) );
+        let finallyMovedBack = actualCopy( keysToVal, transformed );
         /*log( 'eas' );
         log( workNeeded );*/
 
