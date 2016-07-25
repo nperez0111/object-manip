@@ -8,23 +8,11 @@ const isString = require( 'validate.io-string' ),
         return isString( a ) || isArray( a );
     };
 export {
-    isString
-};
-export {
-    curry
-};
-export {
-    isFunc
-};
-export {
-    isArray
-};
-export {
-    hasOwnProp
-};
-export {
-    isStringOrArr
-};
-export {
+    isString,
+    curry,
+    isFunc,
+    isArray,
+    hasOwnProp,
+    isStringOrArr,
     isObj
 };
