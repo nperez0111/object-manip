@@ -73,3 +73,16 @@ export function traverse( objecto, funct, shouldReduce, useKeys ) {
 
     return mapper;
 }
+
+export function valueOf( val, func, thisArg ) {
+    if ( isArray( val ) ) {
+
+        return val.map( ( currentValue, index, arr ) => {
+            return func.call( thisArg, currentValue, index, arr );
+        } );
+
+    }
+    //maybe add another thing into the call
+
+    return func.call( thisArg, val );
+}

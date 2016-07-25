@@ -8,6 +8,7 @@ exports.makeObj = makeObj;
 exports.reducer = reducer;
 exports.levelOfTransform = levelOfTransform;
 exports.traverse = traverse;
+exports.valueOf = valueOf;
 var isArray = require('isarray');
 
 function createObj(keys, values) {
@@ -77,5 +78,17 @@ function traverse(objecto, funct, shouldReduce, useKeys) {
     }
 
     return mapper;
+}
+
+function valueOf(val, func, thisArg) {
+    if (isArray(val)) {
+
+        return val.map(function (currentValue, index, arr) {
+            return func.call(thisArg, currentValue, index, arr);
+        });
+    }
+    //maybe add another thing into the call
+
+    return func.call(thisArg, val);
 }
 //# sourceMappingURL=utils.js.map

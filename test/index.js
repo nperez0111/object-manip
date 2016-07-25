@@ -1,7 +1,7 @@
 var man = require( './../bin/index.js' );
 var equal = require( 'deep-equal' );
 console.time( 'Test took' );
-console.assert( equal( man.transform( {
+assert( man.transform( {
     a: function ( b ) {
         return b + 1;
     }
@@ -10,11 +10,11 @@ console.assert( equal( man.transform( {
     a: 1
 } ), {
     a: 2
-} ) );
+} );
 
 man.settings.reverse = true;
 
-console.assert( equal( man.transform( {
+assert( man.transform( {
     a: 1
 }, {
     a: function ( b ) {
@@ -23,12 +23,12 @@ console.assert( equal( man.transform( {
 
 } ), {
     a: 2
-} ) );
+} );
 
 man.settings.reverse = false;
 
 
-console.assert( equal( man.transform( {
+assert( man.transform( {
     a: {
         b: function ( b ) {
             return b + 1;
@@ -43,9 +43,9 @@ console.assert( equal( man.transform( {
     a: {
         b: 2
     }
-} ) );
+} );
 
-console.assert( equal( man.transform( {
+assert( man.transform( {
     a: function ( b ) {
         return b + 1;
     }
@@ -54,16 +54,16 @@ console.assert( equal( man.transform( {
     a: [ 1 ]
 } ), {
     a: [ 2 ]
-} ) );
+} );
 
-console.assert( equal( man.transform( {
+assert( man.transform( {
     a: 'b'
 }, {
     a: 1
 } ), {
     b: 1
-} ) );
-console.assert( equal( man.transform( {
+} );
+assert( man.transform( {
     a: 'b.a.c'
 
 }, {
@@ -74,9 +74,9 @@ console.assert( equal( man.transform( {
             c: 1
         }
     }
-} ) );
+} );
 
-console.assert( equal( man.transform( {
+assert( man.transform( {
     a: {
         b: {
             c: function ( a ) {
@@ -102,9 +102,9 @@ console.assert( equal( man.transform( {
         },
         d: 4
     }
-} ) );
+} );
 
-console.assert( equal( man.transform( {
+assert( man.transform( {
     a: [ 'b', function ( a ) {
         return a + 1
     } ]
@@ -113,8 +113,8 @@ console.assert( equal( man.transform( {
     a: 1
 } ), {
     b: 2
-} ) );
-console.assert( equal( man.transform( {
+} );
+assert( man.transform( {
     a: [ 'b', function ( a ) {
         return a + 1
     } ]
@@ -123,9 +123,9 @@ console.assert( equal( man.transform( {
     a: [ 1, 2, 3 ]
 } ), {
     b: [ 2, 3, 4 ]
-} ) );
+} );
 
-console.assert( equal( man.transform( {
+assert( man.transform( {
     a: [ 'b.c', function ( a ) {
         return a + 1
     } ]
@@ -136,9 +136,9 @@ console.assert( equal( man.transform( {
     b: {
         c: [ 2, 3, 4 ]
     }
-} ) );
+} );
 
-console.assert( equal( man.transform( {
+assert( man.transform( {
     a: {
         b: './c'
     }
@@ -148,9 +148,9 @@ console.assert( equal( man.transform( {
     }
 } ), {
     c: 1
-} ) );
+} );
 
-console.assert( equal( man.transform( {
+assert( man.transform( {
     a: {
         b: [ './c', function ( a ) {
             return a + 1;
@@ -162,9 +162,9 @@ console.assert( equal( man.transform( {
     }
 } ), {
     c: 2
-} ) );
+} );
 
-console.assert( equal( ( man.transform( {
+assert( ( man.transform( {
     a: {
         b: [ './c', function ( a ) {
             return a + 1;
@@ -181,17 +181,17 @@ console.assert( equal( ( man.transform( {
         d: 212
     },
     c: 2
-} ) );
+} );
 
-console.assert( equal( ( man.transform( {
+assert( ( man.transform( {
     a: './b'
 }, {
     a: 1
 } ) ), {
     b: 1
-} ) );
+} );
 
-console.assert( equal( ( man.transform( {
+assert( ( man.transform( {
     a: './b.k'
 }, {
     a: 1
@@ -199,9 +199,9 @@ console.assert( equal( ( man.transform( {
     b: {
         k: 1
     }
-} ) );
+} );
 
-console.assert( equal( ( man.transform( {
+assert( ( man.transform( {
     a: {
         c: './c'
     }
@@ -221,19 +221,20 @@ console.assert( equal( ( man.transform( {
     }
 } ) ) ), {
     c: 2
-} ) );
+} );
 
 console.assert( man.hasDeepTransform( {
     a: '././a'
 } ) );
 
-console.assert( equal( man.findDeepTransforms( {} ), [] ) );
-console.assert( equal( ( man.findDeepTransforms( {
+assert( man.findDeepTransforms( {} ), [] );
+
+assert( ( man.findDeepTransforms( {
     a: '././a'
 } ) ), [ {
     a: '././a'
-} ] ) );
-console.assert( equal( man.findDeepTransforms( {
+} ] );
+assert( man.findDeepTransforms( {
     a: '././a',
     b: {
         c: '././b'
@@ -244,8 +245,8 @@ console.assert( equal( man.findDeepTransforms( {
     b: {
         c: '././b'
     }
-} ] ) );
-console.assert( equal( man.findDeepTransforms( {
+} ] );
+assert( man.findDeepTransforms( {
     a: '././a',
     b: {
         c: '././b',
@@ -258,9 +259,9 @@ console.assert( equal( man.findDeepTransforms( {
     b: {
         c: '././b'
     }
-} ] ) );
+} ] );
 
-console.assert( equal( man.findDeepTransforms( {
+assert( man.findDeepTransforms( {
     a: '././a',
     b: {
         c: '././b',
@@ -274,10 +275,10 @@ console.assert( equal( man.findDeepTransforms( {
         c: '././b',
         e: '././d'
     }
-} ] ) );
+} ] );
 
 
-console.assert( equal( man.transform.deep( {
+assert( man.transform.deep( {
     a: '././b.c',
     q: {
         b: {
@@ -318,9 +319,9 @@ console.assert( equal( man.transform.deep( {
         c: 12
     },
     d: [ 13, 14 ]
-} ) );
+} );
 
-console.assert( equal( man.transform.deep( {
+assert( man.transform.deep( {
     a: 'b',
     q: {
         b: {
@@ -359,7 +360,7 @@ console.assert( equal( man.transform.deep( {
     e: 35,
     b: 12,
     d: 13
-} ) );
+} );
 
 assert( ( man.transform.deep( {
     a: {
@@ -460,5 +461,9 @@ function log( a ) {
 }
 
 function assert( a, b ) {
-    console.assert( equal( a, b ) );
+    var bool = equal( a, b );
+    if ( !bool ) {
+        console.trace( a, b );
+    }
+    console.assert( bool );
 }

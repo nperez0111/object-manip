@@ -98,7 +98,7 @@ function parseRelocator(str, cur, keys, values, func) {
     }
 
     var props = str.split('.'),
-        value = func ? valueOf(values[cur], func) : values[cur];
+        value = func ? (0, _utils.valueOf)(values[cur], func, module.exports.settings.thisArg) : values[cur];
 
     if (back == false) {
 
@@ -113,18 +113,6 @@ function parseRelocator(str, cur, keys, values, func) {
     return [keys, values, [obj, props[0]]];
 
     /*returns in format [keys,values,[optional val to set]]*/
-}
-
-function valueOf(val, func) {
-    if (isArray(val)) {
-
-        return val.map(function (currentValue, index, arr) {
-            return func.call(module.exports.settings.thisArg, currentValue, index, arr);
-        });
-    }
-    //maybe add another thing into the call
-
-    return func.call(module.exports.settings.thisArg, val);
 }
 
 var d = {
@@ -328,7 +316,7 @@ var d = {
 
             if (hasOwnProp(obj, prop)) {
 
-                return valueOf(obj[prop], func);
+                return (0, _utils.valueOf)(obj[prop], func, module.exports.settings.thisArg);
             } else {
                 //figure out a way to remove the obj key so we dont have a loose function lying around
                 return func;

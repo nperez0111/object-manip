@@ -19,6 +19,7 @@ var isCircular = require('is-circular'),
     isString = require('validate.io-string'),
     isArray = require('isarray'),
     hasOwnProp = require('has-own-prop');
+
 function transformerTypesInCorrect(transformer) {
 
     return (0, _utils.traverse)(transformer, function (val) {
