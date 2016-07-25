@@ -6,7 +6,8 @@ const isString = require( 'validate.io-string' ),
     hasOwnProp = require( 'has-own-prop' ),
     isStringOrArr = function ( a ) {
         return isString( a ) || isArray( a );
-    };
+    },
+    isCircular = require( 'is-circular' );
 export {
     isString,
     curry,
@@ -14,5 +15,6 @@ export {
     isArray,
     hasOwnProp,
     isStringOrArr,
-    isObj
+    isObj,
+    isCircular
 };

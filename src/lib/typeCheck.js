@@ -3,12 +3,14 @@ import {
     createObj
 } from './utils';
 
-const isCircular = require( 'is-circular' ),
-    isFunc = require( 'isfunction' ),
-    isObj = require( 'isobject' ),
-    isString = require( 'validate.io-string' ),
-    isArray = require( 'isarray' ),
-    hasOwnProp = require( 'has-own-prop' );
+import {
+    isString,
+    isFunc,
+    isArray,
+    hasOwnProp,
+    isObj,
+    isCircular
+} from './deps';
 
 export function transformerTypesInCorrect( transformer ) {
 
