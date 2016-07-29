@@ -42,15 +42,14 @@ export function reducer( val ) {
 
     }, {} );
 }
-export function levelOfTransform( str, num ) {
-    var arr = Array.from( str );
-    if ( arr.shift() == '.' && arr.shift() == '/' ) {
-        return levelOfTransform( arr.join( '' ), ( num || 0 ) + 1 );
+export function levelOfTransform( [ dot, slash, ...rest ], num = 0 ) {
+    if ( dot == '.' && slash == '/' ) {
+        return levelOfTransform( rest, num + 1 );
     }
-    return num || 0;
+    return num;
 }
 
-export function traverse( objecto, funct, shouldReduce, useKeys ) {
+export function traverse( objecto, funct, shouldReduce = false, useKeys = false ) {
     let keys = Object.keys( objecto ),
         values = keys.map( function ( cur ) {
             return objecto[ cur ];

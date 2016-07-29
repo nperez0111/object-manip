@@ -22,9 +22,7 @@ import {
     isObj
 } from './deps';
 
-let hasDeepTransform = ( transformer, isDeep ) => {
-
-        isDeep = isDeep == undefined ? true : isDeep;
+let hasDeepTransform = ( transformer, isDeep = true ) => {
 
         let keys = Object.keys( transformer ),
             values = keys.map( function ( cur ) {
@@ -113,8 +111,7 @@ let hasDeepTransform = ( transformer, isDeep ) => {
         } );
 
     },
-    findDeepTransforms = ( transformer, notTransforms ) => {
-        notTransforms = notTransforms === undefined ? true : notTransforms;
+    findDeepTransforms = ( transformer, notTransforms = true ) => {
 
         return traverse( transformer, function ( cur, i, value ) {
             //[boolean checking if immediate values in the object have deeptransforms needed, index]
@@ -153,7 +150,7 @@ let hasDeepTransform = ( transformer, isDeep ) => {
             } else {
 
                 val = deepTraversal( value )[ 0 ];
-                val[ 0 ] = key + ',' + val[ 0 ];
+                val[ 0 ] = `${key},${val[ 0 ]}`;
 
             }
 

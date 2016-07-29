@@ -11,9 +11,9 @@ var _logic = require('./logic');
 
 var _deps = require('./deps');
 
-var hasDeepTransform = function hasDeepTransform(transformer, isDeep) {
+var hasDeepTransform = function hasDeepTransform(transformer) {
+    var isDeep = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
 
-    isDeep = isDeep == undefined ? true : isDeep;
 
     var keys = Object.keys(transformer),
         values = keys.map(function (cur) {
@@ -89,8 +89,9 @@ var hasDeepTransform = function hasDeepTransform(transformer, isDeep) {
         return a !== false;
     });
 },
-    findDeepTransforms = function findDeepTransforms(transformer, notTransforms) {
-    notTransforms = notTransforms === undefined ? true : notTransforms;
+    findDeepTransforms = function findDeepTransforms(transformer) {
+    var notTransforms = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
+
 
     return (0, _utils.traverse)(transformer, function (cur, i, value) {
         //[boolean checking if immediate values in the object have deeptransforms needed, index]

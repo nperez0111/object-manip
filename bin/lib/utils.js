@@ -12,6 +12,8 @@ exports.valueOf = valueOf;
 
 var _deps = require('./deps');
 
+function _toArray(arr) { return Array.isArray(arr) ? arr : Array.from(arr); }
+
 function createObj(keys, values) {
     var ret = {};
     if ((0, _deps.isArray)(keys) && (0, _deps.isArray)(values)) {
@@ -49,15 +51,26 @@ function reducer(val) {
         return Object.assign({}, acc, obj);
     }, {});
 }
-function levelOfTransform(str, num) {
-    var arr = Array.from(str);
-    if (arr.shift() == '.' && arr.shift() == '/') {
-        return levelOfTransform(arr.join(''), (num || 0) + 1);
+function levelOfTransform(_ref) {
+    var _ref2 = _toArray(_ref);
+
+    var dot = _ref2[0];
+    var slash = _ref2[1];
+
+    var rest = _ref2.slice(2);
+
+    var num = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
+
+    if (dot == '.' && slash == '/') {
+        return levelOfTransform(rest, num + 1);
     }
-    return num || 0;
+    return num;
 }
 
-function traverse(objecto, funct, shouldReduce, useKeys) {
+function traverse(objecto, funct) {
+    var shouldReduce = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
+    var useKeys = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
+
     var keys = Object.keys(objecto),
         values = keys.map(function (cur) {
         return objecto[cur];
