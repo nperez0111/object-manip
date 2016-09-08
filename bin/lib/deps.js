@@ -12,7 +12,9 @@ var isString = require('validate.io-string'),
     isStringOrArr = function isStringOrArr(a) {
     return isString(a) || isArray(a);
 },
-    isCircular = require('is-circular');
+    isCircular = require('is-circular'),
+    isInCorrectFormat = require('is-in-correct-format'),
+    is = isInCorrectFormat.is;
 exports.isString = isString;
 exports.curry = curry;
 exports.isFunc = isFunc;
@@ -21,4 +23,6 @@ exports.hasOwnProp = hasOwnProp;
 exports.isStringOrArr = isStringOrArr;
 exports.isObj = isObj;
 exports.isCircular = isCircular;
+exports.isInCorrectFormat = isInCorrectFormat;
+exports.is = is;
 //# sourceMappingURL=deps.js.map

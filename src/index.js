@@ -52,7 +52,7 @@ let deep = curry( function ( transformer, obj ) {
                 return transform( onlyPropertiesThatCorrespondBetween( obj, transformer ), obj );
             }
         }
-        return {};
+        return false;
     } ),
     deepTransform = function ( transformer, obj ) {
         let settings = module.exports.settings;

@@ -9,38 +9,28 @@ import {
     isArray,
     hasOwnProp,
     isObj,
-    isCircular
+    isCircular,
+    isInCorrectFormat,
+    is
 } from './deps';
 
 export function transformerTypesInCorrect( transformer ) {
-
-    return traverse( transformer, function ( val ) {
-        return val;
-    } ).some( function ( val, index, key ) {
-        if ( isString( val ) ) {
+    return isInCorrectFormat( transformer, {}, function ( val ) {
+        if ( isString( val ) || isFunc( val ) ) {
             return false;
         }
         if ( isArray( val ) ) {
             if ( isString( val[ 0 ] ) ) {
                 return false;
             }
-            if ( isArray( val ) && val.length == 2 ) {
+            if ( val.length == 2 ) {
                 if ( isString( val[ 0 ] ) && isFunc( val[ 1 ] ) ) {
                     return false;
                 }
             }
-            console.warn( "Transformer's key:'" + key + "' is not specified properly, must be in the format [String Relocator, Transform Function]. You Specified:" + JSON.stringify( val ) );
-            return true;
         }
-        if ( isFunc( val ) ) {
-            return false;
-        }
-        if ( isObj( val ) ) {
-            return transformerTypesInCorrect( val );
-        }
-        console.warn( "You specified a type that is not associated with a transformer object. You entered: '" + val + "' with a type of: '" + ( typeof val ) + "' on key:'" + key + "'" );
         return true;
-    } );
+    } )
 }
 
 export function transformerIsInCorrectFormat( transformer ) {

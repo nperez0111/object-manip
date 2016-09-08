@@ -21,7 +21,7 @@ var deep = (0, _deps.curry)(function (transformer, obj) {
             return transform((0, _typeCheck.onlyPropertiesThatCorrespondBetween)(obj, transformer), obj);
         }
     }
-    return {};
+    return false;
 }),
     deepTransform = function deepTransform(transformer, obj) {
     var settings = module.exports.settings;

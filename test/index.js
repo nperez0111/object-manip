@@ -453,6 +453,12 @@ assert( man( {
     e: 3
 } )
 
+assert( man( {
+    a: 2
+}, {
+    a: 2
+} ), false )
+
 console.timeEnd( 'Test took' );
 
 function log( a ) {
