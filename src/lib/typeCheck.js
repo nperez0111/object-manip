@@ -15,37 +15,34 @@ import {
 } from './deps';
 
 export function transformerTypesInCorrect( transformer ) {
-    return isInCorrectFormat( transformer, {}, function ( val ) {
+    return !isInCorrectFormat( transformer, {}, function ( val ) {
         if ( isString( val ) || isFunc( val ) ) {
-            return false;
+            return true;
         }
         if ( isArray( val ) ) {
             if ( isString( val[ 0 ] ) ) {
-                return false;
+                return true;
             }
             if ( val.length == 2 ) {
                 if ( isString( val[ 0 ] ) && isFunc( val[ 1 ] ) ) {
-                    return false;
+                    return true;
                 }
             }
         }
-        return true;
+        return false;
     } )
 }
 
 export function transformerIsInCorrectFormat( transformer ) {
-    if ( checkIfIsCircular( transformer ) || transformerTypesInCorrect( transformer ) ) {
-        return false;
-    }
-    return true;
+    return !( checkIfIsCircular( transformer ) || transformerTypesInCorrect( transformer ) )
 }
 
 export function onlyPropertiesThatCorrespondBetween( obj, transformer ) {
-    let tKeys = Object.keys( transformer ).filter( function ( cur ) {
+    let tKeys = Object.keys( transformer ).filter( cur => {
         return hasOwnProp( obj, cur );
     } );
 
-    return createObj( tKeys, tKeys.map( function ( key ) {
+    return createObj( tKeys, tKeys.map( key => {
         let val = transformer[ key ];
         if ( isObj( val ) ) {
             return onlyPropertiesThatCorrespondBetween( obj[ key ], val );
@@ -55,10 +52,7 @@ export function onlyPropertiesThatCorrespondBetween( obj, transformer ) {
 }
 
 export function dataIsInCorrectFormat( data ) {
-    if ( checkIfIsCircular( data ) ) {
-        return false;
-    }
-    return true;
+    return !( checkIfIsCircular( data ) )
 }
 
 function checkIfIsCircular( obj ) {

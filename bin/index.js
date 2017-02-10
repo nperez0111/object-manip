@@ -147,20 +147,18 @@ var deep = (0, _deps.curry)(function (transformer, obj) {
 
                 keys = keys.concat(Object.keys(objy));
 
-                values = values.concat(Object.keys(objy).map(function (a) {
-                    return objy[a];
-                }));
+                values = values.concat(Object.values(objy));
             });
         });
     }
 
-    keys.forEach(function (cur, i) {
-        if ((0, _deps.isObj)(values[i])) {
-            if (Object.keys(values[i]).length == 0) {
+    values.forEach(function (val, i) {
+        if ((0, _deps.isObj)(val)) {
+            if (Object.keys(val).length == 0) {
                 return;
             }
         }
-        ret[cur] = values[i];
+        ret[keys[i]] = val;
     });
 
     if (add.length) {

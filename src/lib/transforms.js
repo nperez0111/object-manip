@@ -19,15 +19,13 @@ import {
     isArray,
     hasOwnProp,
     isStringOrArr,
-    isObj
+    isObj,
+    props
 } from './deps';
-
+const toStr = str => isArray( str ) ? str[ 0 ] : str;
 let hasDeepTransform = ( transformer, isDeep = true ) => {
 
-        let keys = Object.keys( transformer ),
-            values = keys.map( function ( cur ) {
-                return transformer[ cur ];
-            } );
+        let { keys, values } = props( transformer )
 
 
 
@@ -35,8 +33,7 @@ let hasDeepTransform = ( transformer, isDeep = true ) => {
 
             if ( isStringOrArr( cur ) ) {
 
-                let s = isArray( cur ) ? cur[ 0 ] : cur;
-                return levelOfTransform( s ) > 1;
+                return levelOfTransform( toStr( cur ) ) > 1;
 
             } else if ( isDeep && isObj( cur ) ) {
 
@@ -51,14 +48,14 @@ let hasDeepTransform = ( transformer, isDeep = true ) => {
     },
     postTransform = ( transformer ) => {
 
-        return ( traverse( transformer, function ( value, i, key ) {
+        return ( traverse( transformer, ( value, i, key ) => {
 
             let val = null;
 
             if ( isStringOrArr( value ) ) {
 
-                let s = isArray( value ) ? value[ 0 ] : value;
-                val = s.slice( levelOfTransform( s ) * 2 );
+                let str = toStr( value );
+                val = str.slice( levelOfTransform( str ) * 2 );
 
                 if ( isArray( value ) ) {
                     val = [ val, value[ 1 ] ];
@@ -76,13 +73,12 @@ let hasDeepTransform = ( transformer, isDeep = true ) => {
     },
     findDeepNonTransforms = ( transformer ) => {
 
-        let passesTest = function ( value ) {
+        let passesTest = value => {
 
             if ( !isObj( value ) ) {
 
                 if ( isStringOrArr( value ) ) {
-                    let s = isArray( value ) ? value[ 0 ] : value;
-                    return levelOfTransform( s ) < 2;
+                    return levelOfTransform( toStr( value ) ) < 2;
 
                 }
 
@@ -106,23 +102,17 @@ let hasDeepTransform = ( transformer, isDeep = true ) => {
                 return createObj( key, reducer( findDeepNonTransforms( value ) ) );
             }
             return false;
-        } ).filter( function ( a ) {
-            return a !== false;
-        } );
+        } ).filter( a => a !== false );
 
     },
     findDeepTransforms = ( transformer, notTransforms = true ) => {
 
-        return traverse( transformer, function ( cur, i, value ) {
+        return traverse( transformer, ( cur, i, value ) => {
             //[boolean checking if immediate values in the object have deeptransforms needed, index]
-            return [ hasDeepTransform( createObj( cur, value ), true ) === notTransforms, [ cur, value ] ];
+            return hasDeepTransform( createObj( cur, value ), true ) === notTransforms ? [ cur, value ] : false;
 
-        }, false, true ).filter( function ( a ) {
-            return a[ 0 ];
-
-        } ).map( function ( cur ) {
-            let key = cur[ 1 ][ 0 ],
-                val = cur[ 1 ][ 1 ];
+        }, false, true ).filter( a => a ).map( cur => {
+            let [ key, val ] = cur
 
             if ( isObj( val ) ) {
 
@@ -143,9 +133,9 @@ let hasDeepTransform = ( transformer, isDeep = true ) => {
 
             if ( isStringOrArr( value ) ) {
 
-                let s = isArray( value ) ? value[ 0 ] : value,
-                    num = levelOfTransform( s );
-                val = [ ( s.slice( num * 2 ) ), num ];
+                let str = toStr( value ),
+                    num = levelOfTransform( str );
+                val = [ ( str.slice( num * 2 ) ), num ];
 
             } else {
 

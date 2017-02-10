@@ -1,3 +1,6 @@
+if ( !Object.values ) {
+    Object.values = obj => Object.keys( obj ).map( key => obj[ key ] )
+}
 const isString = require( 'validate.io-string' ),
     curry = require( 'curry' ),
     isFunc = require( 'isfunction' ),
@@ -9,7 +12,14 @@ const isString = require( 'validate.io-string' ),
     },
     isCircular = require( 'is-circular' ),
     isInCorrectFormat = require( 'is-in-correct-format' ),
-    is = isInCorrectFormat.is;
+    is = isInCorrectFormat.is,
+    props = obj => {
+        return {
+            keys: Object.keys( obj ),
+            values: Object.values( obj )
+        }
+    }
+
 export {
     isString,
     curry,
@@ -20,5 +30,6 @@ export {
     isObj,
     isCircular,
     isInCorrectFormat,
-    is
+    is,
+    props
 };

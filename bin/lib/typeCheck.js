@@ -13,33 +13,30 @@ var _utils = require('./utils');
 var _deps = require('./deps');
 
 function transformerTypesInCorrect(transformer) {
-    return (0, _deps.isInCorrectFormat)(transformer, {}, function (val) {
+    return !(0, _deps.isInCorrectFormat)(transformer, {}, function (val) {
         if ((0, _deps.isString)(val) || (0, _deps.isFunc)(val)) {
-            return false;
+            return true;
         }
         if ((0, _deps.isArray)(val)) {
             if ((0, _deps.isString)(val[0])) {
-                return false;
+                return true;
             }
             if (val.length == 2) {
                 if ((0, _deps.isString)(val[0]) && (0, _deps.isFunc)(val[1])) {
-                    return false;
+                    return true;
                 }
             }
         }
-        return true;
+        return false;
     });
 }
 
 function transformerIsInCorrectFormat(transformer) {
-    if (checkIfIsCircular(transformer) || transformerTypesInCorrect(transformer)) {
-        return false;
-    }
-    return true;
+    return !(checkIfIsCircular(transformer) || transformerTypesInCorrect(transformer));
 }
 
 function onlyPropertiesThatCorrespondBetween(obj, transformer) {
-    var tKeys = Object.keys(transformer).filter(function (cur) {
+    var tKeys = props(transformer).keys.filter(function (cur) {
         return (0, _deps.hasOwnProp)(obj, cur);
     });
 
@@ -53,10 +50,7 @@ function onlyPropertiesThatCorrespondBetween(obj, transformer) {
 }
 
 function dataIsInCorrectFormat(data) {
-    if (checkIfIsCircular(data)) {
-        return false;
-    }
-    return true;
+    return !checkIfIsCircular(data);
 }
 
 function checkIfIsCircular(obj) {

@@ -183,15 +183,13 @@ let deep = curry( function ( transformer, obj ) {
 
         if ( setBack.length ) {
 
-            setBack.forEach( function ( cur ) {
+            setBack.forEach( cur => {
 
-                cur.forEach( function ( objy ) {
+                cur.forEach( objy => {
 
                     keys = keys.concat( Object.keys( objy ) );
 
-                    values = values.concat( Object.keys( objy ).map( function ( a ) {
-                        return objy[ a ];
-                    } ) );
+                    values = values.concat( Object.values( objy ) );
 
                 } );
 
@@ -199,13 +197,13 @@ let deep = curry( function ( transformer, obj ) {
 
         }
 
-        keys.forEach( function ( cur, i ) {
-            if ( isObj( values[ i ] ) ) {
-                if ( Object.keys( values[ i ] ).length == 0 ) {
+        values.forEach( function ( val, i ) {
+            if ( isObj( val ) ) {
+                if ( Object.keys( val ).length == 0 ) {
                     return;
                 }
             }
-            ret[ cur ] = values[ i ];
+            ret[ keys[ i ] ] = val;
         } );
 
         if ( add.length ) {

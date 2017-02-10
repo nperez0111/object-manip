@@ -3,6 +3,13 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+if (!Object.values) {
+    Object.values = function (obj) {
+        return Object.keys(obj).map(function (key) {
+            return obj[key];
+        });
+    };
+}
 var isString = require('validate.io-string'),
     curry = require('curry'),
     isFunc = require('isfunction'),
@@ -14,7 +21,14 @@ var isString = require('validate.io-string'),
 },
     isCircular = require('is-circular'),
     isInCorrectFormat = require('is-in-correct-format'),
-    is = isInCorrectFormat.is;
+    is = isInCorrectFormat.is,
+    props = function props(obj) {
+    return {
+        keys: Object.keys(obj),
+        values: Object.values(obj)
+    };
+};
+
 exports.isString = isString;
 exports.curry = curry;
 exports.isFunc = isFunc;
@@ -25,4 +39,5 @@ exports.isObj = isObj;
 exports.isCircular = isCircular;
 exports.isInCorrectFormat = isInCorrectFormat;
 exports.is = is;
+exports.props = props;
 //# sourceMappingURL=deps.js.map
