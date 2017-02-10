@@ -1,4 +1,4 @@
-Object-Manip
+Object-Manip [![Build Status](https://travis-ci.org/nperez0111/object-manip.svg?branch=master)](https://travis-ci.org/nperez0111/object-manip)
 ============
 Transforms POJOs into other POJOs using POJOs.
 
