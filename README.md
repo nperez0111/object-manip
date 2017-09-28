@@ -2,6 +2,8 @@ Object-Manip [![Build Status](https://travis-ci.org/nperez0111/object-manip.svg?
 ============
 Transforms POJOs into other POJOs using POJOs.
 
+<a href="https://github.com/nperez0111/object-manip"> <img src="carbon.png" width="846"> </a>
+
 Basically Array.map for Objects using Objects instead of functions. 
 
 Installation
